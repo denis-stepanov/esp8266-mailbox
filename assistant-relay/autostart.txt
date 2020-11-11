@@ -1,0 +1,2 @@
+$ sudo cp assistant-relay.service /etc/systemd/system
+$ sudo systemctl enable assistant-relay
