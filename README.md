@@ -4,9 +4,13 @@
 
 This program will notify you when someone opens your outdoor mailbox. Program features:
 
-* Notifications via LED, internal web site, Telegram or [Google Assistant](https://github.com/denis-stepanov/esp8266-mailbox/wiki/Google-Assistant)
+* Notifications via LED, internal web site, Telegram or [Google Home](https://github.com/denis-stepanov/esp8266-mailbox/wiki/Google-Home)
 * Support for multiple mailboxes
 * Log of events
+
+Notification flow:
+
+![modules](doc/images/cloud.png)
 
 Hardware part is maid with a pair of [ESP-01(S)](https://github.com/denis-stepanov/esp8266-mailbox/wiki/ESP-01), which rely on [HC-12](https://github.com/denis-stepanov/esp8266-mailbox/wiki/HC-12) radio modules for communication using [hand-made antennas](https://github.com/denis-stepanov/esp8266-mailbox/wiki/Antennas). Classical reed switch is used for door opening detection. Radio link works reliably at 150 m distance with some light obstacles (trees and rooftops). Remote (mailbox) module is powered with one [14250 battery](https://github.com/denis-stepanov/esp8266-mailbox/wiki/Battery) lasting for 8 months. The [schematics](https://github.com/denis-stepanov/esp8266-mailbox/wiki/Schematics) are simple, especially for the receiver part.
 
