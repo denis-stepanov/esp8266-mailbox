@@ -9,7 +9,7 @@
  * * * ESP-DS-System 1.0.0 (https://github.com/denis-stepanov/esp-ds-system)
  * * * WiFiManager 0.15.0 (https://github.com/tzapu/WiFiManager)
  * * * JLED 4.5.2 (https://github.com/jandelgado/jled)
- * * * AceButton 1.6.1 (https://github.com/bxparks/AceButton)
+ * * * AceButton 1.8.0 (https://github.com/bxparks/AceButton)
  * * * LinkedList 1.2.3 (https://github.com/ivanseidel/LinkedList)
  * * * ArduinoJson 5.13.5 (v6 will not work) (https://github.com/bblanchon/ArduinoJson/)
  * * * UniversalTelegramBot 1.1.0 (https://github.com/witnessmenow/Universal-Arduino-Telegram-Bot)
