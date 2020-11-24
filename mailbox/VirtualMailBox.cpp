@@ -263,7 +263,7 @@ VirtualMailBox *VirtualMailBox::load(const uint8_t id) {
   time_t last_seen = file.parseInt();
   uint8_t battery = file.parseInt();
   file.close();
-  return new VirtualMailBox(id, label, last_seen, battery);
+  return new VirtualMailBox(id, label, battery, last_seen);
 }
 
 // Remove mailbox information from disk
