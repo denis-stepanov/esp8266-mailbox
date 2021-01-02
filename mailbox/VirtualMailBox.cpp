@@ -317,7 +317,9 @@ VirtualMailBox& VirtualMailBox::operator=(const MailBoxMessage& msg) {
   save();
 
   // Report in the log
-  lmsg = F("Mailbox ");
+  lmsg = F("(");
+  lmsg += msg_num;
+  lmsg += F(") Mailbox ");
   lmsg += getName();
 
   //// Regular "cumulative status" alarm string is not really good for momentary logging, so make a separate interpretation here
