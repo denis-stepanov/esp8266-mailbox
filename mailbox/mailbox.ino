@@ -7,7 +7,7 @@
  * * * ESP8266 Core for Arduino 2.7.4 (https://github.com/esp8266/Arduino)
  * * * ESP8266 LittleFS plugin 2.6.0 (used to upload the icon file to file system) https://github.com/earlephilhower/arduino-esp8266littlefs-plugin
  * * * ESP-DS-System 1.0.0 (https://github.com/denis-stepanov/esp-ds-system)
- * * * WiFiManager 0.15.0 (https://github.com/tzapu/WiFiManager)
+ * * * WiFiManager 0.16.0 (https://github.com/tzapu/WiFiManager)
  * * * JLED 4.5.2 (https://github.com/jandelgado/jled)
  * * * AceButton 1.8.0 (https://github.com/bxparks/AceButton)
  * * * LinkedList 1.2.3 (https://github.com/ivanseidel/LinkedList)
