@@ -39,7 +39,7 @@
  */
 
 #define DS_APP_NAME    "ESP8266 DS Mailbox Automation"
-#define DS_APP_VERSION "2.0.0-beta.2"
+#define DS_APP_VERSION "2.0.0"
 
 #include "local.ino.h"        // Local module
 #include "remote.ino.h"       // Remote module
