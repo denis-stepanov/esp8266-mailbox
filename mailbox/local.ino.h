@@ -28,6 +28,7 @@ const char *System::app_name    PROGMEM = DS_APP_NAME "; Local Module"
 #endif // DS_DEVBOARD
 ;
 const char *System::app_version PROGMEM = DS_APP_VERSION;
+const char *System::app_url     PROGMEM = DS_APP_URL;
 
 //// I/O
 #ifndef DS_DEVBOARD

@@ -17,6 +17,7 @@ using namespace ds;
 /// Application identification
 const char *System::app_name    PROGMEM = DS_APP_NAME "; Remote Module";
 const char *System::app_version PROGMEM = DS_APP_VERSION;
+const char *System::app_url     PROGMEM = DS_APP_URL;
 
 //// I/O
 static const int PIN_REED = 3;                   // No need to receive data; use GPIO3 (RX) for reed sensor
