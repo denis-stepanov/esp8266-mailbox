@@ -1,15 +1,15 @@
 /* DS mailbox automation
  * * Local module
  * * * Mailbox Manager definition
- * (c) DNS 2020
+ * (c) DNS 2020-2021
  */
 
 #ifndef _DS_MAILBOXMANAGER_H_
 #define _DS_MAILBOXMANAGER_H_
 
+#include <forward_list>       // Linked list
 #include <Arduino.h>          // uint8_t, ...
 #include <Ticker.h>           // Periodic events
-#include <LinkedList.h>       // Linked list
 #include "VirtualMailBox.h"   // Mailbox definition
 #include "MailBoxMessage.h"   // Mailbox message
 
@@ -17,7 +17,7 @@ namespace ds {
   
   // Collection of mailboxes
   class MailBoxManager {
-      LinkedList <VirtualMailBox *> mailboxes;        // List of mailboxes served by this module
+      std::forward_list<VirtualMailBox *> mailboxes;  // List of mailboxes served by this module
       mailbox_alarm alarm;                            // Global alarm level
       Ticker ticker;                                  // Timer to check for absent mailboxes
 

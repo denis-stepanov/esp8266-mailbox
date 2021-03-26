@@ -1,6 +1,6 @@
 /* DS mailbox automation
  * * Sketch wrapper. See MySystem.h for selection of which module to compile
- * (c) DNS 2020
+ * (c) DNS 2020-2021
  * Tested with:
  * * Software:
  * * * Arduino 1.8.13 (https://www.arduino.cc/en/software)
@@ -10,7 +10,6 @@
  * * * WiFiManager 0.16.0 (https://github.com/tzapu/WiFiManager)
  * * * JLED 4.7.0 (https://github.com/jandelgado/jled)
  * * * AceButton 1.8.2 (https://github.com/bxparks/AceButton)
- * * * LinkedList 1.2.3 (https://github.com/ivanseidel/LinkedList)
  * * * ArduinoJson 6.17.2 (https://github.com/bblanchon/ArduinoJson)
  * * * UniversalTelegramBot 1.3.0 (https://github.com/witnessmenow/Universal-Arduino-Telegram-Bot)
  * * * Uptime-Library 1.0.0 (https://github.com/YiannisBourkelis/Uptime-Library)

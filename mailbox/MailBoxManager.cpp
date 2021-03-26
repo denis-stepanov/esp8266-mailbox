@@ -1,7 +1,7 @@
 /* DS mailbox automation
  * * Local module
  * * * Mailbox Manager implementation
- * (c) DNS 2020
+ * (c) DNS 2020-2021
  */
 
 #include "MySystem.h"         // System log
@@ -20,8 +20,8 @@ MailBoxManager::MailBoxManager(): alarm(ALARM_NONE) {
 
 // Collection destructor (normally never called)
 MailBoxManager::~MailBoxManager() {
-  for (uint8_t i = 0; i < mailboxes.size(); i++)
-    delete mailboxes.get(i);
+  for (auto mb : mailboxes)
+    delete mb;
 }
 
 // Initialize mailboxes
@@ -30,13 +30,13 @@ void MailBoxManager::begin() {
   for (uint8_t i = MAILBOX_ID_MIN; i <= MAILBOX_ID_MAX; i++) {
     auto mailbox = VirtualMailBox::load(i);
     if (mailbox)
-      mailboxes.add(mailbox);
+      mailboxes.push_front(mailbox);
     yield();
   }
-  if (mailboxes.size())
-    System::log->printf("%d loaded\n", mailboxes.size());
-  else
+  if (mailboxes.empty())
     System::log->println("none found");
+  else
+    System::log->printf("%d loaded\n", std::distance(mailboxes.begin(), mailboxes.end()));
 }
 
 // Find mailbox by ID. If not found, allow registering a new one
@@ -46,8 +46,7 @@ VirtualMailBox *MailBoxManager::getMailBox(const uint8_t mb_id, bool create) {
   if (!mb_id)
     return mailbox;
 
-  for (uint8_t i = 0; i < mailboxes.size(); i++) {
-    auto mb = mailboxes.get(i);
+  for (auto mb : mailboxes) {
     if (*mb == mb_id) {
       mailbox = mb;    // Found
       break;
@@ -59,7 +58,7 @@ VirtualMailBox *MailBoxManager::getMailBox(const uint8_t mb_id, bool create) {
     // Register a new one
     mailbox = new VirtualMailBox(mb_id);
     if (mailbox) {
-      mailboxes.add(mailbox);
+      mailboxes.push_front(mailbox);
       String lmsg = F("Registered new mailbox, id=");
       lmsg += mb_id;
       System::appLogWriteLn(lmsg, true);
@@ -94,10 +93,10 @@ bool MailBoxManager::update(const MailBoxMessage &msg) {
 
 // Delete mailbox with a given ID
 bool MailBoxManager::deleteMailBox(const uint8_t mb_id) {
-  for (uint8_t i = 0; i < mailboxes.size(); i++) {
-    auto mb = mailboxes.get(i);
+  for (auto mb : mailboxes) {
     if (*mb == mb_id) {
-      delete mailboxes.remove(i);
+      delete mb;
+      mailboxes.remove(mb);
       return VirtualMailBox::forget(mb_id);
     }
   }
@@ -108,8 +107,8 @@ bool MailBoxManager::deleteMailBox(const uint8_t mb_id) {
 void MailBoxManager::updateAlarm() {
   const auto alarm_prev = alarm;
   alarm = ALARM_NONE;
-  for (uint8_t i = 0; i < mailboxes.size(); i++) {
-    auto a = mailboxes.get(i)->getAlarm();
+  for (auto mb : mailboxes) {
+    auto a = mb->getAlarm();
     if (a > alarm)
       alarm = a;
   }
@@ -139,8 +138,8 @@ mailbox_alarm MailBoxManager::acknowledgeAlarm(const String &via) {
     msg += via;
     System::appLogWriteLn(msg, true);
     alarm = ALARM_NONE;
-    for (uint8_t i = 0; i < mailboxes.size(); i++)
-      mailboxes.get(i)->resetAlarm();
+    for (auto mb : mailboxes)
+      mb->resetAlarm();
   }
   return alarm_ack;
 }
@@ -149,8 +148,8 @@ mailbox_alarm MailBoxManager::acknowledgeAlarm(const String &via) {
 void MailBoxManager::rollCall() {
   auto nok = false;
 
-  for (uint8_t i = 0; i < mailboxes.size(); i++)
-    if(!mailboxes.get(i)->isOK())
+  for (auto mb : mailboxes)
+    if(!mb->isOK())
       nok = true;
 
   if(nok)
@@ -172,22 +171,22 @@ void MailBoxManager::printHTML(String& buf) {
     "<table border=\"1\" cellpadding=\"3\" cellspacing=\"0\" style=\"font-family: monospace; border-collapse: collapse;\">\n"
     "<tr><th title=\"ID\">&#x1f4ec;</th><th title=\"Label\">&#x1f3f7;</th><th title=\"Status\">&#x1f6a9;</th>"
     "<th title=\"Battery\">&#x1f50b;</th><th title=\"Radio Reliability\">&#x1f4f6;</th><th title=\"Last Contact\">&#x1f557;</th></tr>\n");
-  if (mailboxes.size())
-    for (uint8_t i = 0; i < mailboxes.size(); i++)
-      buf << *mailboxes.get(i);
-  else
+  if (mailboxes.empty())
     buf += F("<tr><td colspan=\"6\" style=\"text-align: center\">- No mailboxes have reported so far -</tr>\n");
+  else
+    for (auto mb : mailboxes)
+      buf << *mb;
   buf += F("</table>\n");
 }
 
 // Print mailboxes table in text
 //// This method should have been const, but LinkedList is not sufficiently well written for that
 void MailBoxManager::printText(String& buf) {
-  if (mailboxes.size())
-    for (uint8_t i = 0; i < mailboxes.size(); i++)
-      mailboxes.get(i)->printText(buf);
-  else
+  if (mailboxes.empty())
     buf += F("No mailboxes have reported so far");
+  else
+    for (auto mb : mailboxes)
+      mb->printText(buf);
 }
 
 // HTML printout helper
