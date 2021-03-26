@@ -8,8 +8,8 @@
  * * * ESP8266 LittleFS plugin 2.6.0 (used to upload the icon file to file system) https://github.com/earlephilhower/arduino-esp8266littlefs-plugin
  * * * ESP-DS-System 1.0.0 (https://github.com/denis-stepanov/esp-ds-system)
  * * * WiFiManager 0.16.0 (https://github.com/tzapu/WiFiManager)
- * * * JLED 4.5.2 (https://github.com/jandelgado/jled)
- * * * AceButton 1.8.0 (https://github.com/bxparks/AceButton)
+ * * * JLED 4.7.0 (https://github.com/jandelgado/jled)
+ * * * AceButton 1.8.2 (https://github.com/bxparks/AceButton)
  * * * LinkedList 1.2.3 (https://github.com/ivanseidel/LinkedList)
  * * * ArduinoJson 6.17.2 (https://github.com/bblanchon/ArduinoJson)
  * * * UniversalTelegramBot 1.3.0 (https://github.com/witnessmenow/Universal-Arduino-Telegram-Bot)
