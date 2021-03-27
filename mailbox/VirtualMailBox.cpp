@@ -1,7 +1,7 @@
 /* DS mailbox automation
  * * Local module
  * * * Mailbox implementation
- * (c) DNS 2020
+ * (c) DNS 2020-2021
  */
 
 #include "MySystem.h"         // System settings
@@ -323,12 +323,25 @@ VirtualMailBox& VirtualMailBox::operator=(const MailBoxMessage& msg) {
   lmsg += getName();
 
   //// Regular "cumulative status" alarm string is not really good for momentary logging, so make a separate interpretation here
+  const auto remote_time = msg.getTime();
   switch (alarm) {
     case ALARM_NONE:       /* Never happens here */         break;
     case ALARM_BOOTED:        lmsg += online ? F(" rebooted") : F(" sleeping after reboot"); break;
     case ALARM_BATTERY:    /* Never happens here */         break;
     case ALARM_ABSENT:     /* Never happens here */         break;
-    case ALARM_DOOR_FLIPPED:  lmsg += F(" door closed");    break;
+    case ALARM_DOOR_FLIPPED:
+
+      // Similar code is in Telegram section
+      if (remote_time / 1000) {
+        lmsg += F(" closed after ");
+        lmsg += remote_time / 1000;  // Assuming opening was within 1s from boot
+        lmsg += F(" second");
+        if (remote_time / 1000 % 10 != 1 || remote_time / 1000 == 11)
+          lmsg += F("s");
+      } else
+        lmsg += F(" bounced");
+      break;
+
     case ALARM_DOOR_LEFTOPEN: lmsg += F(" door left open"); break;
     case ALARM_DOOR_OPEN:     lmsg += F(" door opened");    break;
   }
@@ -342,7 +355,7 @@ VirtualMailBox& VirtualMailBox::operator=(const MailBoxMessage& msg) {
 
 #ifdef DS_SUPPORT_TELEGRAM
   // Send event notification to cloud
-  telegram.sendEvent(*this, msg.getTime());
+  telegram.sendEvent(*this, remote_time);
 #endif // DS_SUPPORT_TELEGRAM
 #ifdef DS_SUPPORT_GOOGLE_ASSISTANT
   if (g_opening_reported)
