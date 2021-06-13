@@ -1,7 +1,7 @@
 /* DS mailbox automation
  * * Local or remote module selector
  * * * System capabilities
- * (c) DNS 2020
+ * (c) DNS 2020-2021
  */
 
 #ifndef _DS_SYSTEM_H_
@@ -25,6 +25,7 @@
 // Remote module
 #define DS_CAP_SYS_RESET    // Enable software reset interface
 #define DS_CAP_SYS_RTCMEM   // Enable RTC memory
+#define DS_UNSTABLE_SERIAL  // Skip serial log initialization delay
 
 #else
 

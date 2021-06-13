@@ -4,12 +4,12 @@
  * Tested with:
  * * Software:
  * * * Arduino 1.8.13 (https://www.arduino.cc/en/software)
- * * * ESP8266 Core for Arduino 2.7.4 (https://github.com/esp8266/Arduino)
+ * * * ESP8266 Core for Arduino 3.0.0 (https://github.com/esp8266/Arduino)
  * * * ESP8266 LittleFS plugin 2.6.0 (used to upload the icon file to file system) https://github.com/earlephilhower/arduino-esp8266littlefs-plugin
- * * * ESP-DS-System 1.0.0 (https://github.com/denis-stepanov/esp-ds-system)
+ * * * ESP-DS-System 1.1.0 (https://github.com/denis-stepanov/esp-ds-system)
  * * * WiFiManager 0.16.0 (https://github.com/tzapu/WiFiManager)
  * * * JLED 4.7.0 (https://github.com/jandelgado/jled)
- * * * AceButton 1.8.2 (https://github.com/bxparks/AceButton)
+ * * * AceButton 1.9.0 (https://github.com/bxparks/AceButton)
  * * * ArduinoJson 6.17.2 (https://github.com/bblanchon/ArduinoJson)
  * * * UniversalTelegramBot 1.3.0 (https://github.com/witnessmenow/Universal-Arduino-Telegram-Bot)
  * * * Uptime-Library 1.0.0 (https://github.com/YiannisBourkelis/Uptime-Library)
@@ -38,7 +38,7 @@
  */
 
 #define DS_APP_NAME    "ESP8266 DS Mailbox Automation"
-#define DS_APP_VERSION "2.1.0-beta.1"
+#define DS_APP_VERSION "2.1.0-beta.2"
 #define DS_APP_URL     "https://github.com/denis-stepanov/esp8266-mailbox"
 
 #include "local.ino.h"        // Local module
