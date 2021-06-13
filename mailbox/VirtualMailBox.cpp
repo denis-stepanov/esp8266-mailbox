@@ -361,7 +361,7 @@ VirtualMailBox& VirtualMailBox::operator=(const MailBoxMessage& msg) {
   if (g_opening_reported)
     g_opening_reported = false;
   else
-    if (alarm > ALARM_DOOR_FLIPPED || alarm == ALARM_DOOR_FLIPPED && remote_time / 1000) {
+    if (alarm > ALARM_DOOR_FLIPPED || (alarm == ALARM_DOOR_FLIPPED && remote_time / 1000)) {
       String gmsg(F("Mailbox "));
       gmsg += getName();
       gmsg += F(" opened");
