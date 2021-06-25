@@ -21,7 +21,7 @@
  * * * * * * Board: Generic ESP8266 Module
  * * * * * * Upload Speed: 115200
  * * * * * * Flash Size: 1MB (FS:256kB)
- * * * * * * Flash Mode: DOUT (compatible)
+ * * * * * * Flash Mode: DOUT (compatible) (depends on the module - yours could be different)
  * * * * * * Builtin LED: 1
  * * * * Dev: (to enable, define DS_DEVBOARD in MySystem.h)
  * * * * * ESP-12F Witty Cloud. Incoming message emulated with button double click
@@ -34,7 +34,7 @@
  * * * * * ESP-01S 1MB. Arduino IDE settings:
  * * * * * * Board: Generic ESP8266 Module
  * * * * * * Flash Size: 1MB (FS:none)
- * * * * * * Flash Mode: QIO (fast)
+ * * * * * * Flash Mode: QIO (fast) (depends on the module - yours could be different)
  */
 
 #define DS_APP_NAME    "ESP8266 DS Mailbox Automation"
