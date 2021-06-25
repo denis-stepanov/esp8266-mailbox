@@ -1642,10 +1642,10 @@ bool TimerSolar::operator!=(const TimerSolar& timer) const {
 }
 
 uint16_t System::getSolarEvent(const timer_type_t ev_type) {
-  struct tm tm_gmt;
 
-  gmtime_r(&time, &tm_gmt);
-  Dusk2Dawn local(DS_LATITUDE, DS_LONGITUDE, (mktime(&tm_time) - mktime(&tm_gmt)) / 60.0 / 60);
+  // Dusk2Dawn expects TZ east to GMT, whereas POSIX TZ goes west, hence the minus sign
+  Dusk2Dawn local(DS_LONGITUDE, DS_LATITUDE, -_timezone / 60.0 / 60);
+
   switch (ev_type) {
 
     case TIMER_SUNRISE:
@@ -2220,11 +2220,14 @@ void System::update() {
     if ((tm_time.tm_hour == 3 && tm_time.tm_min == 30 && tm_time.tm_sec == 0) || time - time_solar_sync > 24 * 60 * 60) {
       time_solar_sync = time;
 #ifdef DS_CAP_SYS_LOG
-      log->printf(TIMED("Recalculating solar events...\n"));
+      log->printf(TIMED("Recalculating solar events... "));
 #endif // DS_CAP_SYS_LOG
       for (auto timer : timers)
         if (timer && (timer->getType() == TIMER_SUNRISE || timer->getType() == TIMER_SUNSET))
           static_cast<TimerSolar *>(timer)->adjust();
+#ifdef DS_CAP_SYS_LOG
+      log->println(F("OK"));
+#endif // DS_CAP_SYS_LOG
     }
 #endif // DS_CAP_TIMERS_SOLAR
 
