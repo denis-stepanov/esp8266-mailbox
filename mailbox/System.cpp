@@ -1607,7 +1607,6 @@ TimerSolar::TimerSolar(const String action, const timer_type_t _type, const int8
   Timer(_type == TIMER_SUNRISE || _type == TIMER_SUNSET ? _type : TIMER_INVALID, action, armed, recurrent, transient, id),
   TimerAbsolute(action, 0, 0, 0, dow) {
   setOffset(offset >= -59 && offset <= 59 ? offset : 0);
-  adjust();  // Align to the solar times in effect
 }
 
 // Return offset in minutes from event
@@ -1617,8 +1616,10 @@ int8_t TimerSolar::getOffset() const {
 
 // Set offset in minutes from event
 void TimerSolar::setOffset(const int8_t offset) {
-  if (offset >= -59 && offset <= 59)
+  if (offset >= -59 && offset <= 59) {
     time.tm_mday = offset;
+    adjust();  // Offset changed; recalculate time
+  }
 }
 
 // Recalculate alignment to solar times

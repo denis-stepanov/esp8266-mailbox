@@ -31,7 +31,7 @@
 
 // System version
 // Format is x.xx.xx (major.minor.maintenance). E.g., 20001 means 2.0.1
-#define DS_SYSTEM_VERSION 10101U   // 1.1.1
+#define DS_SYSTEM_VERSION 10102U   // 1.1.2
 
 // Consistency checks. Policy: whenever one capability requires another, issue a warning and enable. Whenever one capability extends another, enable without a warning
 #if defined(DS_CAP_SYS_LOG_HW) && !defined(DS_CAP_SYS_LOG)
