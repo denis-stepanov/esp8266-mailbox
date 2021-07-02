@@ -116,7 +116,8 @@ void VirtualMailBox::resetAlarm() {
 bool VirtualMailBox::isOK() {
 
   // Check if mailbox has not been seen for a while
-  if (last_seen && alarm != ALARM_ABSENT && (unsigned long)(System::getTime() - last_seen) >= ABSENCE_TIME) {
+  if (last_seen && alarm != ALARM_ABSENT && System::getTimeSyncStatus() != TIME_SYNC_NONE &&
+       (unsigned long)(System::getTime() - last_seen) >= ABSENCE_TIME) {
     alarm = ALARM_ABSENT;    // Override possible stale higher level alarm
     String lmsg = F("Marking mailbox ");
     lmsg += getName();
