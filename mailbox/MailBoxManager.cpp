@@ -12,11 +12,8 @@
 
 using namespace ds;
 
-static const unsigned int ROLLCALL_INTERVAL = 60 * 60;  // Health check interval (s)
-
-MailBoxManager::MailBoxManager(): alarm(ALARM_NONE) {
-  ticker.attach_scheduled(ROLLCALL_INTERVAL, std::bind(&MailBoxManager::rollCall, this));
-}
+// Constructor
+MailBoxManager::MailBoxManager(): alarm(ALARM_NONE) {}
 
 // Collection destructor (normally never called)
 MailBoxManager::~MailBoxManager() {
@@ -37,6 +34,20 @@ void MailBoxManager::begin() {
     System::log->println("none found");
   else
     System::log->printf("%d loaded\n", std::distance(mailboxes.begin(), mailboxes.end()));
+}
+
+// Regular check of mailboxes' status
+void MailBoxManager::update(const bool force) {
+  if (System::newHour() || force) {
+    auto nok = false;
+
+    for (auto mb : mailboxes)
+      if(!mb->isOK())
+        nok = true;
+
+    if(nok)
+      updateAlarm();
+  }
 }
 
 // Find mailbox by ID. If not found, allow registering a new one
@@ -74,7 +85,7 @@ VirtualMailBox *MailBoxManager::operator[](const uint8_t mb_id) {
 }
 
 // Update mailbox from received message; create if not found
-bool MailBoxManager::update(const MailBoxMessage &msg) {
+bool MailBoxManager::process(const MailBoxMessage &msg) {
   const auto mailbox = getMailBox(msg.getMailBoxID(), true);
 
   if (!mailbox) {
@@ -142,18 +153,6 @@ mailbox_alarm MailBoxManager::acknowledgeAlarm(const String &via) {
       mb->resetAlarm();
   }
   return alarm_ack;
-}
-
-// Regular check of mailboxes' status
-void MailBoxManager::rollCall() {
-  auto nok = false;
-
-  for (auto mb : mailboxes)
-    if(!mb->isOK())
-      nok = true;
-
-  if(nok)
-    updateAlarm();
 }
 
 // Print mailboxes table in HTML

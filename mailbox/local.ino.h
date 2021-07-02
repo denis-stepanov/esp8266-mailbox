@@ -132,17 +132,18 @@ void loop() {
 
   // Check if we can run mailbox status check after boot
   if (check_degraded) {
-    mailbox_manager.rollCall();
+    mailbox_manager.update(true);
     check_degraded = false;
   }
 
   // Check for incoming message
   if (receiver.messageAvailable())
-    mailbox_manager.update(receiver.getMessage());
+    mailbox_manager.process(receiver.getMessage());
 
   // Background processing
   System::update();
   receiver.update();
+  mailbox_manager.update();
 }
 
 #endif // !DS_MAILBOX_REMOTE
