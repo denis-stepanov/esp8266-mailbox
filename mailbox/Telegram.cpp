@@ -28,9 +28,9 @@ const char *Telegram::chat_id    PROGMEM =
 static const unsigned int POLL_INTERVAL = 10;  // s
 
 // Constructor
-Telegram::Telegram(): bot(token, client), boot_reported(false), bounce_reported(false) {
+Telegram::Telegram(): bot(token, client), timer((char *)nullptr, POLL_INTERVAL, std::bind(&Telegram::update, this)),
+    boot_reported(false), bounce_reported(false) {
   client.setInsecure();    // See https://github.com/witnessmenow/Universal-Arduino-Telegram-Bot/issues/118
-  ticker.attach_scheduled(POLL_INTERVAL, std::bind(&Telegram::update, this));
 }
 
 // Send message with logging

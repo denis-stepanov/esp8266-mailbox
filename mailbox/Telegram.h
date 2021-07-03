@@ -7,9 +7,9 @@
 #ifndef _DS_TELEGRAM_H_
 #define _DS_TELEGRAM_H_
 
-#include <Ticker.h>                  // Periodic events
 #include <WiFiClientSecure.h>        // SSL interface
 #include <UniversalTelegramBot.h>    // Telegram bot library
+#include "MySystem.h"                // Timers
 #include "VirtualMailBox.h"          // Mailbox information
 
 namespace ds {
@@ -19,7 +19,7 @@ namespace ds {
       static const char *chat_id;                     // Telegram chat id
       WiFiClientSecure client;                        // Encrypted connection
       UniversalTelegramBot bot;                       // Bot instance
-      Ticker ticker;                                  // Timer to service Telegram incoming traffic
+      TimerCountdownTick timer;                       // Timer to service Telegram incoming traffic
       bool boot_reported;                             // True if boot has been already reported
       bool bounce_reported;                           // True if door bounce has been already reported
 
