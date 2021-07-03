@@ -1,7 +1,7 @@
 /* DS mailbox automation
  * * Local module
  * * * Telegram implementation
- * (c) DNS 2020
+ * (c) DNS 2020-2021
  */
 
 #include "MySystem.h"               // LED control

@@ -30,6 +30,14 @@ extern GoogleAssistant google_assistant;    // Google interface
 static const char *FILE_PREFIX PROGMEM = "/mailbox"; // Configuration file prefix
 static const char *FILE_EXT PROGMEM = ".cfg";        // Configuration file extension
 
+// Constructor
+VirtualMailBox::VirtualMailBox(const uint8_t _id, const String _label, const uint8_t _battery, const time_t _last_seen) :
+  MailBox(_id, _label, _battery), last_seen(_last_seen), msg_recv(0), alarm(ALARM_NONE),
+  timer((char *)nullptr, (AWAKE_TIME + 5000 /* slack 5s */) / 1000.0, std::bind(&VirtualMailBox::timeout, this), false),
+  g_opening_reported(false) {
+}
+
+
 // Return the last report time
 time_t VirtualMailBox::getLastSeen() const {
   return last_seen;
@@ -381,9 +389,9 @@ VirtualMailBox& VirtualMailBox::operator=(const MailBoxMessage& msg) {
 
   // Set a timeout handler in the case the second message never arrives
   if (online)
-    ticker.once_ms_scheduled(AWAKE_TIME + 5000 /* slack 5s */, std::bind(&VirtualMailBox::timeout, this));
+    timer.arm();
   else
-    ticker.detach();
+    timer.disarm();
 
   return *this;
 }

@@ -1,7 +1,7 @@
 /* DS mailbox automation
  * * Local module
  * * * Telegram definition
- * (c) DNS 2020
+ * (c) DNS 2020-2021
  */
 
 #ifndef _DS_TELEGRAM_H_
