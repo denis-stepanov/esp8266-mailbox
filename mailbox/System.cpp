@@ -1829,7 +1829,8 @@ TimerCountdownTick::TimerCountdownTick(const String action, const float _interva
   const bool armed, const bool recurrent, const bool transient, const int id) :
   Timer(TIMER_COUNTDOWN_TICK, action, armed, recurrent, transient, id),
   TimerCountdown(TIMER_COUNTDOWN_TICK, action, _interval), callback(_callback) {
-    arm();
+    if (armed)
+      arm();
 }
 
 // Arm the timer (default)
