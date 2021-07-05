@@ -44,6 +44,8 @@ void Receiver::reset() {
 
 // Handle incoming traffic
 void Receiver::update() {
+  StreamString lmsg;
+
 #ifdef DS_DEVBOARD
   if (recv_message_emulated) {
     recv_message_emulated = false;
@@ -59,10 +61,12 @@ void Receiver::update() {
     msg = msg_emulated;
     recv_in_progress = false;
     bytes_received = msg.getSize();
+
+    lmsg = F("Received message: ");
+    lmsg.print(msg.asIs());
+    System::log->println(lmsg);
   }
 #else
-  StreamString lmsg;
-
   while (serial.available() > 0 && bytes_received < msg.getSize()) {
 
     if (!recv_in_progress) {
@@ -102,7 +106,11 @@ void Receiver::update() {
 
   if (recv_in_progress && bytes_received == msg.getSize()) {
     recv_in_progress = false;
-    if (!msg.checksumOK()) {
+    if (msg.checksumOK()) {
+      lmsg += F("Received message: ");
+      lmsg.print(msg.asIs());
+      System::log->println(lmsg);
+    } else {
       lmsg += F("Invalid message: checksum mismatch; raw=");
       lmsg.print(msg.asRaw());
       reset();
