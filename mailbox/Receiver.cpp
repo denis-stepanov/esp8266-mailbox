@@ -62,9 +62,9 @@ void Receiver::update() {
     recv_in_progress = false;
     bytes_received = msg.getSize();
 
-    lmsg = F("Received message: ");
+    lmsg += F("Received message: ");
     lmsg.print(msg.asIs());
-    System::log->println(lmsg);
+    System::log->printf(TIMED("%s\n"), lmsg.c_str());
   }
 #else
   while (serial.available() > 0 && bytes_received < msg.getSize()) {
@@ -109,7 +109,7 @@ void Receiver::update() {
     if (msg.checksumOK()) {
       lmsg += F("Received message: ");
       lmsg.print(msg.asIs());
-      System::log->println(lmsg);
+      System::log->printf(TIMED("%s\n"), lmsg.c_str());
     } else {
       lmsg += F("Invalid message: checksum mismatch; raw=");
       lmsg.print(msg.asRaw());
