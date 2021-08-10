@@ -4,13 +4,13 @@
  * Tested with:
  * * Software:
  * * * Arduino 1.8.13 (https://www.arduino.cc/en/software)
- * * * ESP8266 Core for Arduino 3.0.1 (https://github.com/esp8266/Arduino)
+ * * * ESP8266 Core for Arduino 3.0.2 (https://github.com/esp8266/Arduino)
  * * * ESP8266 LittleFS plugin 2.6.0 (used to upload the icon file to file system) https://github.com/earlephilhower/arduino-esp8266littlefs-plugin
- * * * ESP-DS-System 1.1.1 (https://github.com/denis-stepanov/esp-ds-system)
+ * * * ESP-DS-System 1.1.3 (https://github.com/denis-stepanov/esp-ds-system)
  * * * WiFiManager 0.16.0 (https://github.com/tzapu/WiFiManager)
  * * * JLED 4.7.0 (https://github.com/jandelgado/jled)
  * * * AceButton 1.9.0 (https://github.com/bxparks/AceButton)
- * * * ArduinoJson 6.17.2 (https://github.com/bblanchon/ArduinoJson)
+ * * * ArduinoJson 6.18.3 (https://github.com/bblanchon/ArduinoJson)
  * * * UniversalTelegramBot 1.3.0 (https://github.com/witnessmenow/Universal-Arduino-Telegram-Bot)
  * * * Uptime-Library 1.0.0 (https://github.com/YiannisBourkelis/Uptime-Library)
  * * Hardware:
