@@ -13,8 +13,8 @@
 using namespace ds;
 
 static const uint8_t REED_OPEN = LOW;       // See schematic
-static const uint16_t VCC_REF_000 = 3385;   // ADC reference reading at 0% battery (~= 3V). These numbers have been measured experimentally and depend on battery type and schematic
-static const uint16_t VCC_REF_100 = 4015;   // ADC reference reading at 100% battery (~= 3.6V). Must be higher than VCC_REF_000
+static const uint16_t VCC_REF_000 = 3625;   // ADC reference reading at 0% battery. These numbers have been measured experimentally and depend on battery type and schematic
+static const uint16_t VCC_REF_100 = 3925;   // ADC reference reading at 100% battery. Must be higher than VCC_REF_000
 
 // Initialize mailbox
 void PhysicalMailBox::begin() {

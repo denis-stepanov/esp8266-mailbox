@@ -34,7 +34,7 @@ namespace ds {
   // Various battery levels (%)
   enum {
     BATTERY_LEVEL_DEAD /* = 0 */,            // Fully discharged
-    BATTERY_LEVEL_LOW = 5,                   // Discharge alert
+    BATTERY_LEVEL_LOW = 20,                  // Discharge alert
     BATTERY_LEVEL_FULL = 100,                // Fully charged
     BATTERY_LEVEL_UNKNOWN = 127              // Level unknown
   };
