@@ -1,6 +1,6 @@
 /* DS mailbox automation
  * * Communication protocol definition
- * (c) DNS 2020
+ * (c) DNS 2020-2021
  */
 
 #ifndef _DS_MAILBOXMESSAGE_H_
