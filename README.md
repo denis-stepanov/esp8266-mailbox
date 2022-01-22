@@ -33,3 +33,6 @@ Receiver (left) and transmitter (right) before installation, fit with some early
 ### Alright; How Do I Start?
 
 Consult [Wiki](https://github.com/denis-stepanov/esp8266-mailbox/wiki) for [Getting Started](https://github.com/denis-stepanov/esp8266-mailbox/wiki/Getting-Started), [Schematics](https://github.com/denis-stepanov/esp8266-mailbox/wiki/Schematics) and details of [Operation](https://github.com/denis-stepanov/esp8266-mailbox/wiki/Operation).
+
+### Project Status
+January 2022: v3 is planned with important redesign of remote module. It will bring a PIR sensor to detect letters and small parcels and a more suitable controller ([ATtiny](https://github.com/SpenceKonde/megaTinyCore) instead of [ESP-01S](https://github.com/denis-stepanov/esp8266-mailbox/wiki/ESP-01)).
