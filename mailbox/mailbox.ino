@@ -1,6 +1,6 @@
 /* DS mailbox automation
  * * Sketch wrapper. See MySystem.h for selection of which module to compile
- * (c) DNS 2020-2021
+ * (c) DNS 2020-2022
  * Tested with:
  * * Software:
  * * * Arduino 1.8.19 (https://www.arduino.cc/en/software)

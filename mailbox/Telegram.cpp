@@ -1,10 +1,10 @@
 /* DS mailbox automation
  * * Local module
  * * * Telegram implementation
- * (c) DNS 2020-2021
+ * (c) DNS 2020-2022
  */
 
-#include "MySystem.h"               // LED control
+#include "MySystem.h"               // LED control; network status
 
 #if defined(DS_SUPPORT_TELEGRAM) && !defined(DS_MAILBOX_REMOTE)
 
@@ -35,118 +35,141 @@ Telegram::Telegram(): bot(token, client), timer((char *)nullptr, POLL_INTERVAL, 
 
 // Send message with logging
 bool Telegram::sendMessage(const String& chat_id, const String& to, const String& cmd, const String& msg) {
-  System::log->printf(TIMED("Serving Telegram command \""));
-  System::log->print(cmd);
-  System::log->print(F("\" to "));
-  System::log->print(to);
-  System::log->println(chat_id[0] == '-' ? F(" in public") : F(" in private"));
-  return bot.sendMessage(chat_id, msg, F("Markdown"));
+  if (System::networkIsConnected()) {
+    System::log->printf(TIMED("Serving Telegram command \""));
+    System::log->print(cmd);
+    System::log->print(F("\" to "));
+    System::log->print(to);
+    System::log->println(chat_id[0] == '-' ? F(" in public") : F(" in private"));
+    return bot.sendMessage(chat_id, msg, F("Markdown"));
+  } else {
+    System::log->printf(TIMED("Telegram message not sent: network is down\n"));
+    return false;
+  }
 }
 
 // Send boot notification
 bool Telegram::sendBoot() {
+  if (System::networkIsConnected()) {
 
-  // Do not timestamp this, as usually when this is sent, time is not synchronized yet
-  return bot.sendMessage(chat_id, F("Mailbox receiver booted"));
+    // Do not timestamp this, as usually when this is sent, time is not synchronized yet
+    return bot.sendMessage(chat_id, F("Mailbox receiver booted"));
+  } else {
+    System::log->printf(TIMED("Telegram message not sent: network is down\n"));
+    return false;
+  }
 }
 
 // Send lost event notification
 bool Telegram::sendLostEvent(uint16_t num) {
-  if (num) {
-    String msg = F("Detected loss of ");
-    msg += num;
-    msg += F(" event");
-    msg += num % 10 == 1 && num != 11 ? F("") : F("s");
-    msg += " beforehand";
-    return bot.sendMessage(chat_id, msg);
-  } else
+  if (System::networkIsConnected()) {
+    if (num) {
+      String msg = F("Detected loss of ");
+      msg += num;
+      msg += F(" event");
+      msg += num % 10 == 1 && num != 11 ? F("") : F("s");
+      msg += " beforehand";
+      return bot.sendMessage(chat_id, msg);
+    } else
+      return false;
+  } else {
+    System::log->printf(TIMED("Telegram message not sent: network is down\n"));
     return false;
+  }
 }
 
 // Send event notification
 bool Telegram::sendEvent(const VirtualMailBox& mb, uint16_t remote_time) {
-  auto alarm = mb.getAlarm();
+  if (System::networkIsConnected()) {
+    auto alarm = mb.getAlarm();
 
-  // Do not report boot twice
-  if (alarm == ALARM_BOOTED && boot_reported) {
+    // Do not report boot twice
+    if (alarm == ALARM_BOOTED && boot_reported) {
+      boot_reported = false;
+      return true;
+    }
     boot_reported = false;
-    return true;
-  }
-  boot_reported = false;
 
-  // Do not report another closure if door bounced (i.e., found closed on wake up)
-  if (alarm == ALARM_DOOR_FLIPPED && bounce_reported) {
+    // Do not report another closure if door bounced (i.e., found closed on wake up)
+    if (alarm == ALARM_DOOR_FLIPPED && bounce_reported) {
+      bounce_reported = false;
+      return true;
+    }
     bounce_reported = false;
-    return true;
-  }
-  bounce_reported = false;
 
-  char time_str[7];
-  const auto t = System::getTime();
-  strftime(time_str, sizeof(time_str), "%H:%M ", localtime(&t));
-  String output(time_str);
-  output += mb.getAlarmIcon();
+    char time_str[7];
+    const auto t = System::getTime();
+    strftime(time_str, sizeof(time_str), "%H:%M ", localtime(&t));
+    String output(time_str);
+    output += mb.getAlarmIcon();
 
-  // Show action text
-  output += F(" Mailbox ");
-  output += mb.getName();
-  switch (alarm) {
-    case ALARM_NONE:
-      return true;       // Nothing to send
+    // Show action text
+    output += F(" Mailbox ");
+    output += mb.getName();
+    switch (alarm) {
+      case ALARM_NONE:
+        return true;       // Nothing to send
 
-    case ALARM_BOOTED:
-      output += F(" rebooted");
-      boot_reported = true;
-      break;
+      case ALARM_BOOTED:
+        output += F(" rebooted");
+        boot_reported = true;
+        break;
 
-    case ALARM_BATTERY:
-      output += F(" is low on battery (");
-      output += mb.getBattery();
-      output += F("%)");
-      break;
+      case ALARM_BATTERY:
+        output += F(" is low on battery (");
+        output += mb.getBattery();
+        output += F("%)");
+        break;
 
-    case ALARM_ABSENT: {
-        const auto days = (System::getTime() - mb.getLastSeen()) / (24 * 60 * 60);
-        output += F(" haven't reported back for ");
-        output += days;
-        output += F(" day");
-        if (days / 1000 % 10 != 1 || days / 1000 == 11)
-          output += F("s");
-      }
-      break;
+      case ALARM_ABSENT: {
+          const auto days = (System::getTime() - mb.getLastSeen()) / (24 * 60 * 60);
+          output += F(" haven't reported back for ");
+          output += days;
+          output += F(" day");
+          if (days / 1000 % 10 != 1 || days / 1000 == 11)
+            output += F("s");
+        }
+        break;
 
-    case ALARM_DOOR_FLIPPED:
-      if (remote_time / 1000) {
-        output += F(" closed after ");
-        output += remote_time / 1000;  // Assuming opening was within 1s from boot
+      case ALARM_DOOR_FLIPPED:
+        if (remote_time / 1000) {
+          output += F(" closed after ");
+          output += remote_time / 1000;  // Assuming opening was within 1s from boot
+          output += F(" second");
+          if (remote_time / 1000 % 10 != 1 || remote_time / 1000 == 11)
+            output += F("s");
+        } else {
+          output += F(" bounced");
+          bounce_reported = true;
+        }
+        break;
+
+      case ALARM_DOOR_LEFTOPEN:
+        output += F(" still opened after ");
+        output += remote_time / 1000;
         output += F(" second");
         if (remote_time / 1000 % 10 != 1 || remote_time / 1000 == 11)
           output += F("s");
-      } else {
-        output += F(" bounced");
-        bounce_reported = true;
-      }
-      break;
+        output += F(". Closure will not be reported");
+        break;
 
-    case ALARM_DOOR_LEFTOPEN:
-      output += F(" still opened after ");
-      output += remote_time / 1000;
-      output += F(" second");
-      if (remote_time / 1000 % 10 != 1 || remote_time / 1000 == 11)
-        output += F("s");
-      output += F(". Closure will not be reported");
-      break;
+      case ALARM_DOOR_OPEN:
+        output += F(" opened");
+        break;
+    }
 
-    case ALARM_DOOR_OPEN:
-      output += F(" opened");
-      break;
+    return bot.sendMessageWithReplyKeyboard(chat_id, output, "", F("[[\"/ack\",\"/status\"],[\"/ack +status\"]]"), true);
+  } else {
+    System::log->printf(TIMED("Telegram message not sent: network is down\n"));
+    return false;
   }
-
-  return bot.sendMessageWithReplyKeyboard(chat_id, output, "", F("[[\"/ack\",\"/status\"],[\"/ack +status\"]]"), true);
 }
 
 // Process incoming commands
 void Telegram::update() {
+  if (!System::networkIsConnected())
+    return;
+
   const auto n_msg = bot.getUpdates(bot.last_message_received + 1);
   for(int i = 0; i < n_msg; i++) {
     const telegramMessage& input = bot.messages[i];
