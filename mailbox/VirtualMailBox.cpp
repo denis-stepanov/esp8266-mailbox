@@ -370,11 +370,17 @@ VirtualMailBox& VirtualMailBox::operator=(const MailBoxMessage& msg) {
   if (g_opening_reported)
     g_opening_reported = false;
   else
-    if (alarm > ALARM_DOOR_FLIPPED || (alarm == ALARM_DOOR_FLIPPED && remote_time / 1000)) {
-      String gmsg(F("Mailbox "));
-      gmsg += getName();
-      gmsg += F(" opened");
-      g_opening_reported = google_assistant.broadcast(gmsg) && online;
+    if (alarm >= ALARM_DOOR_FLIPPED) {
+      if (alarm == ALARM_DOOR_FLIPPED && !(remote_time / 1000)) {
+
+        // Mailbox bounced; skip reporting
+        g_opening_reported = true;
+      } else {
+        String gmsg(F("Mailbox "));
+        gmsg += getName();
+        gmsg += F(" opened");
+        g_opening_reported = google_assistant.broadcast(gmsg) && online;
+      }
     }
 #endif // DS_SUPPORT_GOOGLE_ASSISTANT
 
