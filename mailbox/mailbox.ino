@@ -8,9 +8,9 @@
  * * * ESP8266 LittleFS plugin 2.6.0 (used to upload the icon file to file system) https://github.com/earlephilhower/arduino-esp8266littlefs-plugin
  * * * ESP-DS-System 1.1.3 (https://github.com/denis-stepanov/esp-ds-system)
  * * * WiFiManager 0.16.0 (https://github.com/tzapu/WiFiManager)
- * * * JLED 4.11.0 (https://github.com/jandelgado/jled)
+ * * * JLED 4.12.0 (https://github.com/jandelgado/jled)
  * * * AceButton 1.9.2 (https://github.com/bxparks/AceButton)
- * * * ArduinoJson 6.19.4 (https://github.com/bblanchon/ArduinoJson)
+ * * * ArduinoJson 6.20.0 (https://github.com/bblanchon/ArduinoJson)
  * * * UniversalTelegramBot 1.3.0 (https://github.com/witnessmenow/Universal-Arduino-Telegram-Bot)
  * * * Uptime-Library 1.0.0 (https://github.com/YiannisBourkelis/Uptime-Library)
  * * Hardware:
@@ -38,7 +38,7 @@
  */
 
 #define DS_APP_NAME    "ESP8266 DS Mailbox Automation"
-#define DS_APP_VERSION "2.1.1"
+#define DS_APP_VERSION "2.2a1"
 #define DS_APP_URL     "https://github.com/denis-stepanov/esp8266-mailbox"
 
 #include "local.ino.h"        // Local module
