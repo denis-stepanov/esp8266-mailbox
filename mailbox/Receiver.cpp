@@ -1,7 +1,7 @@
 /* DS mailbox automation
  * * Local module
  * * * Receiver implementation
- * (c) DNS 2020
+ * (c) DNS 2020-2022
  */
 
 #include "MySystem.h"       // System log
@@ -62,7 +62,7 @@ void Receiver::update() {
     recv_in_progress = false;
     bytes_received = msg.getSize();
 
-    lmsg += F("Received message: ");
+    lmsg = F("Received message: ");
     lmsg.print(msg.asIs());
     System::log->printf(TIMED("%s\n"), lmsg.c_str());
   }
@@ -77,7 +77,7 @@ void Receiver::update() {
     if (b != -1)
       msg[bytes_received++] = b;
     else {
-      lmsg += F("Error reading input message after ");
+      lmsg = F("Error reading input message after ");
       lmsg += bytes_received;
       lmsg += F(" byte(s)");
       System::appLogWriteLn(lmsg, true);
@@ -87,13 +87,13 @@ void Receiver::update() {
     // Check integrity
     if (bytes_received == 1 && (!msg.protocolVersionOK() || !receiverIDOK())) {
       if (!msg.protocolVersionOK()) {
-        lmsg += F("Invalid message: wrong protocol version: ");
+        lmsg = F("Invalid message: wrong protocol version: ");
         lmsg += msg.getProtocolVersion();
         lmsg += F(" (expected ");
         lmsg += PROTO_VERSION;
         lmsg += F("), ignoring");
       } else {
-        lmsg += F("Invalid message: wrong receiver: ");
+        lmsg = F("Invalid message: wrong receiver: ");
         lmsg += msg.getReceiverID();
         lmsg += F(" (expected ");
         lmsg += RECEIVER_ID;
@@ -107,11 +107,11 @@ void Receiver::update() {
   if (recv_in_progress && bytes_received == msg.getSize()) {
     recv_in_progress = false;
     if (msg.checksumOK()) {
-      lmsg += F("Received message: ");
+      lmsg = F("Received message: ");
       lmsg.print(msg.asIs());
       System::log->printf(TIMED("%s\n"), lmsg.c_str());
     } else {
-      lmsg += F("Invalid message: checksum mismatch; raw=");
+      lmsg = F("Invalid message: checksum mismatch; raw=");
       lmsg.print(msg.asRaw());
       reset();
       System::appLogWriteLn(lmsg, true);
@@ -119,7 +119,7 @@ void Receiver::update() {
   }
 
   if (recv_in_progress && millis() - t0 > RF_TIMEOUT) {
-    lmsg += F("Message timeout after receiving ");
+    lmsg = F("Message timeout after receiving ");
     lmsg += bytes_received;
     lmsg += F("/");
     lmsg += msg.getSize();
