@@ -280,11 +280,6 @@ bool VirtualMailBox::forget(const uint8_t id) {
   return System::fs.remove(getConfFileName(id));
 }
 
-// Comparison operator (match by ID)
-bool VirtualMailBox::operator==(const uint8_t id2) const {
-  return id == id2;
-}
-
 // Update mailbox from message data
 static const uint16_t LOST_MESSAGE_MAX = 1000; // Threshold after which we consider our counter to be out of sync
 VirtualMailBox& VirtualMailBox::operator=(const MailBoxMessage& msg) {
