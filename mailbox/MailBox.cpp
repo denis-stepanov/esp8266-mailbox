@@ -110,9 +110,34 @@ void MailBox::incrementMessageCount(const uint32_t num) {
   msg_count += num;
 }
 
-// Comparison operator (match by ID)
+// Comparison operator == (match by ID)
 bool MailBox::operator==(const uint8_t id2) const {
   return id == id2;
+}
+
+// Comparison operator != (match by ID)
+bool MailBox::operator!=(const uint8_t id2) const {
+  return id != id2;
+}
+
+// Comparison operator < (match by ID)
+bool MailBox::operator<(const uint8_t id2) const {
+  return id < id2;
+}
+
+// Comparison operator > (match by ID)
+bool MailBox::operator>(const uint8_t id2) const {
+  return id > id2;
+}
+
+// Comparison operator <= (match by ID)
+bool MailBox::operator<=(const uint8_t id2) const {
+  return id <= id2;
+}
+
+// Comparison operator >= (match by ID)
+bool MailBox::operator>=(const uint8_t id2) const {
+  return id >= id2;
 }
 
 // Initialize message parts from mailbox data
