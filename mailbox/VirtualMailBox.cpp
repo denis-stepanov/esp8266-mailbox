@@ -1,7 +1,7 @@
 /* DS mailbox automation
  * * Local module
  * * * Mailbox implementation
- * (c) DNS 2020-2021
+ * (c) DNS 2020-2022
  */
 
 #include "MySystem.h"         // System settings
@@ -278,11 +278,6 @@ VirtualMailBox *VirtualMailBox::load(const uint8_t id) {
 // Remove mailbox information from disk
 bool VirtualMailBox::forget(const uint8_t id) {
   return System::fs.remove(getConfFileName(id));
-}
-
-// Comparison operator (match by ID)
-bool VirtualMailBox::operator==(const uint8_t id2) const {
-  return id == id2;
 }
 
 // Update mailbox from message data

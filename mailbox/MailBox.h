@@ -1,6 +1,6 @@
 /* DS mailbox automation
  * * Basic mailbox definition
- * (c) DNS 2020
+ * (c) DNS 2020-2022
  */
 
 #ifndef _DS_MAILBOX_H_
@@ -48,6 +48,12 @@ namespace ds {
       uint32_t getMessageCount() const;      // Return sent messages counter
       void setMessageCount(const uint32_t num = 0); // Set sent messages counter
       void incrementMessageCount(const uint32_t num = 1); // Increment sent messages counter
+      bool operator==(const uint8_t /* id2 */) const; // Comparison operator == (match by ID)
+      bool operator!=(const uint8_t /* id2 */) const; // Comparison operator != (match by ID)
+      bool operator<(const uint8_t /* id2 */) const;  // Comparison operator <  (match by ID)
+      bool operator>(const uint8_t /* id2 */) const;  // Comparison operator >  (match by ID)
+      bool operator<=(const uint8_t /* id2 */) const; // Comparison operator <= (match by ID)
+      bool operator>=(const uint8_t /* id2 */) const; // Comparison operator >= (match by ID)
   };
 
 } // namespace ds

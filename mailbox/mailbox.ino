@@ -38,7 +38,7 @@
  */
 
 #define DS_APP_NAME    "ESP8266 DS Mailbox Automation"
-#define DS_APP_VERSION "2.2b1"
+#define DS_APP_VERSION "2.2b2"
 #define DS_APP_URL     "https://github.com/denis-stepanov/esp8266-mailbox"
 
 #include "local.ino.h"        // Local module

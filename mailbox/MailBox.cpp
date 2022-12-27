@@ -1,6 +1,6 @@
 /* DS mailbox automation
  * * Basic mailbox implementation
- * (c) DNS 2020
+ * (c) DNS 2020-2022
  */
 
 #include "MailBox.h"
@@ -108,6 +108,36 @@ void MailBox::setMessageCount(const uint32_t num) {
 //// We assume the counter does not overflow in any realistic scenario
 void MailBox::incrementMessageCount(const uint32_t num) {
   msg_count += num;
+}
+
+// Comparison operator == (match by ID)
+bool MailBox::operator==(const uint8_t id2) const {
+  return id == id2;
+}
+
+// Comparison operator != (match by ID)
+bool MailBox::operator!=(const uint8_t id2) const {
+  return id != id2;
+}
+
+// Comparison operator < (match by ID)
+bool MailBox::operator<(const uint8_t id2) const {
+  return id < id2;
+}
+
+// Comparison operator > (match by ID)
+bool MailBox::operator>(const uint8_t id2) const {
+  return id > id2;
+}
+
+// Comparison operator <= (match by ID)
+bool MailBox::operator<=(const uint8_t id2) const {
+  return id <= id2;
+}
+
+// Comparison operator >= (match by ID)
+bool MailBox::operator>=(const uint8_t id2) const {
+  return id >= id2;
 }
 
 // Initialize message parts from mailbox data

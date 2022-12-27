@@ -1,7 +1,7 @@
 /* DS mailbox automation
  * * Local module
  * * * Mailbox definition
- * (c) DNS 2020-2021
+ * (c) DNS 2020-2022
  */
 
 #ifndef _DS_VIRTUALMAILBOX_H_
@@ -59,7 +59,6 @@ namespace ds {
       void save() const;                     // Save mailbox information to disk
       static VirtualMailBox *load(const uint8_t /* id */); // Initialize mailbox with information on disk
       static bool forget(const uint8_t /* id */); // Remove mailbox information from disk
-      bool operator==(const uint8_t /* id2 */) const; // Comparison operator (match by ID)
       VirtualMailBox& operator=(const MailBoxMessage& /* msg */); // Update mailbox from message data
   };
 
