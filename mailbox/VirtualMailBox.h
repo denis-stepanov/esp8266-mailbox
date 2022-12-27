@@ -1,7 +1,7 @@
 /* DS mailbox automation
  * * Local module
  * * * Mailbox definition
- * (c) DNS 2020-2021
+ * (c) DNS 2020-2022
  */
 
 #ifndef _DS_VIRTUALMAILBOX_H_

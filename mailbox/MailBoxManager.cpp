@@ -1,7 +1,7 @@
 /* DS mailbox automation
  * * Local module
  * * * Mailbox Manager implementation
- * (c) DNS 2020-2021
+ * (c) DNS 2020-2022
  */
 
 #include "MySystem.h"         // System log
@@ -30,6 +30,7 @@ void MailBoxManager::begin() {
       mailboxes.push_front(mailbox);
     yield();
   }
+  mailboxes.sort();
   if (mailboxes.empty())
     System::log->println("none found");
   else
@@ -70,6 +71,7 @@ VirtualMailBox *MailBoxManager::getMailBox(const uint8_t mb_id, bool create) {
     mailbox = new VirtualMailBox(mb_id);
     if (mailbox) {
       mailboxes.push_front(mailbox);
+      mailboxes.sort();
       String lmsg = F("Registered new mailbox, id=");
       lmsg += mb_id;
       System::appLogWriteLn(lmsg, true);

@@ -1,6 +1,6 @@
 /* DS mailbox automation
  * * Basic mailbox definition
- * (c) DNS 2020
+ * (c) DNS 2020-2022
  */
 
 #ifndef _DS_MAILBOX_H_

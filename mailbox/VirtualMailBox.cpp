@@ -1,7 +1,7 @@
 /* DS mailbox automation
  * * Local module
  * * * Mailbox implementation
- * (c) DNS 2020-2021
+ * (c) DNS 2020-2022
  */
 
 #include "MySystem.h"         // System settings

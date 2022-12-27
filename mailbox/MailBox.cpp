@@ -1,6 +1,6 @@
 /* DS mailbox automation
  * * Basic mailbox implementation
- * (c) DNS 2020
+ * (c) DNS 2020-2022
  */
 
 #include "MailBox.h"
