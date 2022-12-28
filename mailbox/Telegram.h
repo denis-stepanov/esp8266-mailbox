@@ -1,7 +1,7 @@
 /* DS mailbox automation
  * * Local module
  * * * Telegram definition
- * (c) DNS 2020-2021
+ * (c) DNS 2020-2022
  */
 
 #ifndef _DS_TELEGRAM_H_
@@ -22,6 +22,7 @@ namespace ds {
       TimerCountdownTick timer;                       // Timer to service Telegram incoming traffic
       bool boot_reported;                             // True if boot has been already reported
       bool bounce_reported;                           // True if door bounce has been already reported
+      bool update_in_progress;                        // True is update is in progress
 
       bool sendMessage(const String& /* chat_id */, const String& /* to */, const String& /* cmd */, const String& /* msg */); // Send message with logging
       void update();                                  // Process incoming commands

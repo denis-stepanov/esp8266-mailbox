@@ -29,7 +29,7 @@ static const unsigned int POLL_INTERVAL = 10;  // s
 
 // Constructor
 Telegram::Telegram(): bot(token, client), timer((char *)nullptr, POLL_INTERVAL, std::bind(&Telegram::update, this)),
-    boot_reported(false), bounce_reported(false) {
+    boot_reported(false), bounce_reported(false), update_in_progress(false) {
   client.setInsecure();    // See https://github.com/witnessmenow/Universal-Arduino-Telegram-Bot/issues/118
 }
 
@@ -167,10 +167,12 @@ bool Telegram::sendEvent(const VirtualMailBox& mb, uint16_t remote_time) {
 
 // Process incoming commands
 void Telegram::update() {
-  if (!System::networkIsConnected())
+  if (!System::networkIsConnected() || update_in_progress)
     return;
 
+  update_in_progress = true;
   const auto n_msg = bot.getUpdates(bot.last_message_received + 1);
+  update_in_progress = false;
   for(int i = 0; i < n_msg; i++) {
     const telegramMessage& input = bot.messages[i];
 
