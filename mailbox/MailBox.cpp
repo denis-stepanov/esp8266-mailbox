@@ -140,6 +140,36 @@ bool MailBox::operator>=(const uint8_t id2) const {
   return id >= id2;
 }
 
+// Comparison operator == (match by ID)
+bool MailBox::operator==(const MailBox& mb) const {
+  return *this == mb.getID();
+}
+
+// Comparison operator != (match by ID)
+bool MailBox::operator!=(const MailBox& mb) const {
+  return *this != mb.getID();
+}
+
+// Comparison operator < (match by ID)
+bool MailBox::operator<(const MailBox& mb) const {
+  return *this < mb.getID();
+}
+
+// Comparison operator > (match by ID)
+bool MailBox::operator>(const MailBox& mb) const {
+  return *this > mb.getID();
+}
+
+// Comparison operator <= (match by ID)
+bool MailBox::operator<=(const MailBox& mb) const {
+  return *this <= mb.getID();
+}
+
+// Comparison operator >= (match by ID)
+bool MailBox::operator>=(const MailBox& mb) const {
+  return *this >= mb.getID();
+}
+
 // Initialize message parts from mailbox data
 MailBoxMessage& operator<<(MailBoxMessage& msg, const MailBox& mb) {
   msg.setMailBoxID(mb.getID());

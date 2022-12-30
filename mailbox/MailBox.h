@@ -29,6 +29,7 @@ namespace ds {
 
       MailBox(const uint8_t _id = 1, const String _label = (char *)nullptr, const uint8_t _battery = BATTERY_LEVEL_UNKNOWN) :
         id(_id), label(_label), boot(false), online(false), battery(_battery), door(false), msg_num(MESSAGE_NUMBER_UNKNOWN), msg_count(0) {}
+
       uint8_t getID() const;                 // Return mailbox ID
       const String& getLabel() const;        // Return mailbox label
       void setLabel(const String& /* new_label */); // Set mailbox label
@@ -48,12 +49,19 @@ namespace ds {
       uint32_t getMessageCount() const;      // Return sent messages counter
       void setMessageCount(const uint32_t num = 0); // Set sent messages counter
       void incrementMessageCount(const uint32_t num = 1); // Increment sent messages counter
+
       bool operator==(const uint8_t /* id2 */) const; // Comparison operator == (match by ID)
       bool operator!=(const uint8_t /* id2 */) const; // Comparison operator != (match by ID)
       bool operator<(const uint8_t /* id2 */) const;  // Comparison operator <  (match by ID)
       bool operator>(const uint8_t /* id2 */) const;  // Comparison operator >  (match by ID)
       bool operator<=(const uint8_t /* id2 */) const; // Comparison operator <= (match by ID)
       bool operator>=(const uint8_t /* id2 */) const; // Comparison operator >= (match by ID)
+      bool operator==(const MailBox& /* mb */) const; // Comparison operator == (match by ID)
+      bool operator!=(const MailBox& /* mb */) const; // Comparison operator != (match by ID)
+      bool operator<(const MailBox& /* mb */) const;  // Comparison operator <  (match by ID)
+      bool operator>(const MailBox& /* mb */) const;  // Comparison operator >  (match by ID)
+      bool operator<=(const MailBox& /* mb */) const; // Comparison operator <= (match by ID)
+      bool operator>=(const MailBox& /* mb */) const; // Comparison operator >= (match by ID)
   };
 
 } // namespace ds
