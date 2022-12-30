@@ -12,6 +12,13 @@
 
 using namespace ds;
 
+// A helper function to compare mailboxes
+static bool cmp_vmb(const VirtualMailBox *mb1, const VirtualMailBox *mb2) {
+  if (!mb1 || !mb2)
+    return false;
+  return *mb1 < *mb2;
+}
+
 // Constructor
 MailBoxManager::MailBoxManager(): alarm(ALARM_NONE) {}
 
@@ -30,7 +37,7 @@ void MailBoxManager::begin() {
       mailboxes.push_front(mailbox);
     yield();
   }
-  mailboxes.sort();
+  mailboxes.sort(cmp_vmb);
   if (mailboxes.empty())
     System::log->println("none found");
   else
@@ -71,7 +78,7 @@ VirtualMailBox *MailBoxManager::getMailBox(const uint8_t mb_id, bool create) {
     mailbox = new VirtualMailBox(mb_id);
     if (mailbox) {
       mailboxes.push_front(mailbox);
-      mailboxes.sort();
+      mailboxes.sort(cmp_vmb);
       String lmsg = F("Registered new mailbox, id=");
       lmsg += mb_id;
       System::appLogWriteLn(lmsg, true);
