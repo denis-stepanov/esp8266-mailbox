@@ -1,6 +1,6 @@
 /* DS mailbox automation
  * * Sketch wrapper. See MySystem.h for selection of which module to compile
- * (c) DNS 2020-2022
+ * (c) DNS 2020-2023
  * Tested with:
  * * Software:
  * * * Arduino 1.8.19 (https://www.arduino.cc/en/software)
@@ -38,7 +38,7 @@
  */
 
 #define DS_APP_NAME    "ESP8266 DS Mailbox Automation"
-#define DS_APP_VERSION "2.2b3"
+#define DS_APP_VERSION "2.2b4"
 #define DS_APP_URL     "https://github.com/denis-stepanov/esp8266-mailbox"
 
 #include "local.ino.h"        // Local module
