@@ -20,7 +20,11 @@ static void pushHeader(const String& title, bool redirect = false) {
   String &page = System::web_page;
   String uri = System::web_server.uri();
 
-  System::pushHTMLHeader(title, uri == "/" ?
+  // UTF-8 'OPEN MAILBOX WITH RAISED FLAG'
+  String head_user = F(
+    "<link rel=\"icon\" href='data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 240 240\"><text y=\"192\" font-size=\"192\">&#x1f4ec;</text></svg>'/>\n"
+  );
+  head_user += uri == "/" ?
     // Note: this must match the ALARM_* enum
     F(
     "<style>\n"
@@ -33,9 +37,9 @@ static void pushHeader(const String& title, bool redirect = false) {
     "  .alarm5 { font-weight: bold; color: red; }\n"
     "  .alarm6 { font-weight: bold; color: red; animation: blinker 0.6s linear infinite; }\n"
     "  @keyframes blinker { 50% { opacity: 0; } }\n"
-    "</style>\n") : F(""),
-    redirect
-  );
+    "</style>\n") : F("");
+
+  System::pushHTMLHeader(title, head_user, redirect);
   page += F("<h3>");
   page += title;
   page += F("</h3>\n");
