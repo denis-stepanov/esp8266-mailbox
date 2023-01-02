@@ -1,7 +1,7 @@
 /* DS mailbox automation
  * * Local module
  * * * Mailbox implementation
- * (c) DNS 2020-2022
+ * (c) DNS 2020-2023
  */
 
 #include "MySystem.h"         // System settings
@@ -399,9 +399,14 @@ VirtualMailBox& VirtualMailBox::operator=(const MailBoxMessage& msg) {
 
 // Message timeout handler
 void VirtualMailBox::timeout() {
+
+  // Assume the message has been sent but did not arrive
+  MailBoxMessage::getNextMessageNumber(msg_num);
+  msg_count++;
+
   String lmsg = F("Mailbox ");
   lmsg += getName();
-  lmsg += F(" door closure event timed out");
+  lmsg += F(" door closure event timed out; potentially lost 1 message");
   System::appLogWriteLn(lmsg, true);
 
   // In the case alarm has been acknowledged before timeout, do not reinstate it
