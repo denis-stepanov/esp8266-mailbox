@@ -1,7 +1,7 @@
 /* DS mailbox automation
  * * Local module
  * * * Telegram definition
- * (c) DNS 2020-2022
+ * (c) DNS 2020-2023
  */
 
 #ifndef _DS_TELEGRAM_H_
@@ -30,6 +30,7 @@ namespace ds {
     public:
       Telegram();                                     // Constructor
       bool sendBoot();                                // Send boot notification
+      bool sendBatteryLow(const VirtualMailBox& /* mb */); // Send low battery notification
       bool sendLostEvent(uint16_t /* num */);         // Send lost event notification
       bool sendEvent(const VirtualMailBox& /* mb */, uint16_t remote_time = 0); // Send event notification
   };

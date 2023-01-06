@@ -1,7 +1,7 @@
 /* DS mailbox automation
  * * Local module
  * * * Mailbox definition
- * (c) DNS 2020-2022
+ * (c) DNS 2020-2023
  */
 
 #ifndef _DS_VIRTUALMAILBOX_H_
@@ -33,6 +33,7 @@ namespace ds {
       mailbox_alarm alarm;                   // Alarm status
       TimerCountdownTick timer;              // Timer to check for absent second message
       bool g_opening_reported;               // True if opening has already been reported to Google
+      bool low_battery_reported;             // True if low battery status has been recently reported
 
       static String getConfFileName(const uint8_t /* id */); // Return configuration file name (static version)
       String getConfFileName() const;        // Return configuration file name

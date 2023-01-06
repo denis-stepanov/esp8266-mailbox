@@ -34,7 +34,7 @@ static const char *FILE_EXT PROGMEM = ".cfg";        // Configuration file exten
 VirtualMailBox::VirtualMailBox(const uint8_t _id, const String _label, const uint8_t _battery, const time_t _last_seen) :
   MailBox(_id, _label, _battery), last_seen(_last_seen), msg_recv(0), alarm(ALARM_NONE),
   timer((char *)nullptr, (AWAKE_TIME + 5000 /* slack 5s */) / 1000.0, std::bind(&VirtualMailBox::timeout, this), false, false),
-  g_opening_reported(false) {
+  g_opening_reported(false), low_battery_reported(false) {
 }
 
 
@@ -118,14 +118,17 @@ void VirtualMailBox::updateAlarm() {
 // Reset mailbox alarm
 void VirtualMailBox::resetAlarm() {
   alarm = ALARM_NONE;
+  low_battery_reported = false;
 }
 
 // Return false in degraded conditions (battery low or mailbox absent)
 bool VirtualMailBox::isOK() {
+  auto is_ok = true;
 
   // Check if mailbox has not been seen for a while
   if (last_seen && alarm != ALARM_ABSENT && System::getTimeSyncStatus() != TIME_SYNC_NONE &&
        (unsigned long)(System::getTime() - last_seen) >= ABSENCE_TIME) {
+    is_ok = false;
     alarm = ALARM_ABSENT;    // Override possible stale higher level alarm
     String lmsg = F("Marking mailbox ");
     lmsg += getName();
@@ -134,23 +137,26 @@ bool VirtualMailBox::isOK() {
 #ifdef DS_SUPPORT_TELEGRAM
     telegram.sendEvent(*this);
 #endif
-    return false;
   }
 
   // Check is mailbox is low on battery
   if (alarm < ALARM_BATTERY && getBattery() <= BATTERY_LEVEL_LOW) {
+    is_ok = false;
     alarm = ALARM_BATTERY;
+  }
+
+  if (getBattery() <= BATTERY_LEVEL_LOW && !low_battery_reported) {
     String lmsg = F("Mailbox ");
     lmsg += getName();
     lmsg += " is low on battery";
     System::appLogWriteLn(lmsg, true);
 #ifdef DS_SUPPORT_TELEGRAM
-    telegram.sendEvent(*this);
+    telegram.sendBatteryLow(*this);
 #endif
-    return false;
+    low_battery_reported = true;
   }
 
-  return true;
+  return is_ok;
 }
 
 // Print mailbox status in HTML
