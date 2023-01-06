@@ -1,7 +1,7 @@
 /* DS mailbox automation
  * * Local module
  * * * Telegram implementation
- * (c) DNS 2020-2022
+ * (c) DNS 2020-2023
  */
 
 #include "MySystem.h"               // LED control; network status
@@ -54,6 +54,28 @@ bool Telegram::sendBoot() {
 
     // Do not timestamp this, as usually when this is sent, time is not synchronized yet
     return bot.sendMessage(chat_id, F("Mailbox receiver booted"));
+  } else {
+    System::log->printf(TIMED("Telegram message not sent: network is down\n"));
+    return false;
+  }
+}
+
+// Send low battery notification
+bool Telegram::sendBatteryLow(const VirtualMailBox& mb) {
+  if (System::networkIsConnected()) {
+
+    char time_str[7];
+    const auto t = System::getTime();
+    strftime(time_str, sizeof(time_str), "%H:%M ", localtime(&t));
+    String output(time_str);
+    output += mb.getAlarmIcon(ALARM_BATTERY);
+    output += F(" Mailbox ");
+    output += mb.getName();
+    output += F(" is low on battery (");
+    output += mb.getBattery();
+    output += F("%)");
+
+    return bot.sendMessage(chat_id, output);
   } else {
     System::log->printf(TIMED("Telegram message not sent: network is down\n"));
     return false;
