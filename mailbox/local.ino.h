@@ -1,6 +1,6 @@
 /* DS mailbox automation
  * * Local module
- * (c) DNS 2020
+ * (c) DNS 2020-2023
  */
 
 #include "MySystem.h"         // System-level definitions
@@ -126,6 +126,11 @@ void setup() {
   // Notify on Telegram about reboot
   telegram.sendBoot();
 #endif // DS_SUPPORT_TELEGRAM
+
+#ifdef DS_SUPPORT_GOOGLE_ASSISTANT
+  // Load Google configuration
+  google_assistant.begin();
+#endif // DS_SUPPORT_GOOGLE_ASSISTANT
 }
 
 void loop() {

@@ -1,7 +1,7 @@
 /* DS mailbox automation
  * * Local module
  * * * Google Assistant reporting implementation (via Assistant Relay, https://greghesp.github.io/assistant-relay/)
- * (c) DNS 2020
+ * (c) DNS 2020-2023
  */
 
 #include "MySystem.h"               // Syslog
@@ -12,8 +12,46 @@
 
 using namespace ds;
 
-// Assistant relay location. Specify where your relay is deployed
-const char *GoogleAssistant::url PROGMEM = "http://192.168.1.2:3000/assistant";
+static const char *GA_CONF_FILE_NAME PROGMEM = "/google.cfg";
+
+// Return assistant relay location
+const String& GoogleAssistant::getURL() const {
+  return url;
+}
+
+// Set assistant relay location
+void GoogleAssistant::setURL(const String& new_url) {
+  url = new_url;
+}
+
+// Begin operations
+void GoogleAssistant::begin() {
+
+  // Load configuration if present
+  load();
+}
+
+// Load configuration from disk
+void GoogleAssistant::load() {
+  auto file = System::fs.open(GA_CONF_FILE_NAME, "r");
+  if (!file)
+    return;
+  url = file.readStringUntil('\r');
+  file.close();
+  System::log->printf(TIMED("%s: Google Assistant Relay location: %s\n"), GA_CONF_FILE_NAME, url.c_str());
+}
+
+// Save configuration to disk
+void GoogleAssistant::save(const String& new_url) {
+  url = new_url;
+  auto file = System::fs.open(GA_CONF_FILE_NAME, "w");
+  if (!file) {
+    System::log->printf(TIMED("Error saving Google configuration\n"));
+    return;
+  }
+  file.println(url);
+  file.close();
+}
 
 // Broadcast message
 bool GoogleAssistant::broadcast(__attribute__ ((unused)) const String& msg) {
@@ -21,6 +59,8 @@ bool GoogleAssistant::broadcast(__attribute__ ((unused)) const String& msg) {
 #ifdef DS_DEVBOARD
   const int ret = HTTP_CODE_OK;    // Skip assistant announcements
 #else
+  if (!url.length())
+    return false;
   http.begin(client, url);
   http.addHeader(F("Content-Type"), F("application/json"));
   String payload;
