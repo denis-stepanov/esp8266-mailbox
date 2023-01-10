@@ -14,6 +14,10 @@ using namespace ds;
 
 static const char *GA_CONF_FILE_NAME PROGMEM = "/google.cfg";
 
+// Constructor
+GoogleAssistant::GoogleAssistant(): active(true) {
+}
+
 // Return assistant relay location
 const String& GoogleAssistant::getURL() const {
   return url;
@@ -37,27 +41,48 @@ void GoogleAssistant::load() {
   if (!file)
     return;
   url = file.readStringUntil('\r');
+  active = file.parseInt();
   file.close();
-  System::log->printf(TIMED("%s: Google Assistant Relay location: %s\n"), GA_CONF_FILE_NAME, url.c_str());
+  System::log->printf(TIMED("%s: Google Assistant Relay location: %s, %sactive\n"), GA_CONF_FILE_NAME, url.c_str(), active ? "" : "in");
 }
 
 // Save configuration to disk
-void GoogleAssistant::save(const String& new_url) {
+void GoogleAssistant::save(const String& new_url, bool new_active) {
   url = new_url;
+  active = new_active;
   auto file = System::fs.open(GA_CONF_FILE_NAME, "w");
   if (!file) {
     System::log->printf(TIMED("Error saving Google configuration\n"));
     return;
   }
   file.println(url);
+  file.println(active ? 1 : 0);
   file.close();
+}
+
+// Activate service
+void GoogleAssistant::activate() {
+  active = true;
+}
+
+// Deactivate service
+void GoogleAssistant::deactiave() {
+  active = false;
+}
+
+// Return true if service is active
+bool GoogleAssistant::isActive() const {
+  return active;
 }
 
 // Broadcast message
 bool GoogleAssistant::broadcast(__attribute__ ((unused)) const String& msg) {
+  if (!active)
+    return false;
 
 #ifdef DS_DEVBOARD
   const int ret = HTTP_CODE_OK;    // Skip assistant announcements
+  System::log->printf(TIMED("TEST: Sending broadcast to Google Assistant... "));
 #else
   if (!url.length())
     return false;

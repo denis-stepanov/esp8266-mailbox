@@ -189,8 +189,14 @@ static void serveConf() {
   page += F("<form action=\"/confSave\">\n");
 
 #ifdef DS_SUPPORT_GOOGLE_ASSISTANT
-  page += F("<p><label for=\"g_url\">Google Assistant Relay location (full path): </label>"
-    "<input type=\"text\" id=\"g_url\" name=\"g_url\" value=\"");
+  page += F(
+    "  <p>\n"
+    "    <input name=\"g_active\" type=\"checkbox\"");
+  if (google_assistant.isActive())
+    page += F(" checked=\"checked\"");
+  page += F(" style=\"vertical-align: middle;\"/>\n"
+    "    <label for=\"g_url\">Google Assistant Relay location (full path): </label>"
+    "    <input type=\"text\" id=\"g_url\" name=\"g_url\" value=\"");
   page += google_assistant.getURL();
   page += F("\"/></p>\n");
 #endif // DS_SUPPORT_GOOGLE_ASSISTANT
@@ -212,6 +218,7 @@ static void serveConfSave() {
 #ifdef DS_SUPPORT_GOOGLE_ASSISTANT
   String g_url;
   auto g_url_ok = false;
+  auto g_active = false;
 #endif // DS_SUPPORT_GOOGLE_ASSISTANT
 
   for (unsigned int i = 0; i < (unsigned int)System::web_server.args(); i++) {
@@ -221,15 +228,19 @@ static void serveConfSave() {
     if (arg_name == "g_url") {
       g_url = System::web_server.arg(i);
       g_url_ok = true;
-    }
+    } else
+    if (arg_name == "g_active")
+      g_active = true;
 #endif // DS_SUPPORT_GOOGLE_ASSISTANT
   }
 
 #ifdef DS_SUPPORT_GOOGLE_ASSISTANT
   if (g_url_ok) {
-    String g_url_old = google_assistant.getURL();
-    google_assistant.save(g_url);
-    String lmsg = F("Google Assistant URL updated from \"");
+    const String g_url_old = google_assistant.getURL();
+    google_assistant.save(g_url, g_active);
+    String lmsg = F("Google Assistant ");
+    lmsg += g_active ? F("") : F("de");
+    lmsg += F("activated and URL updated from \"");
     lmsg += g_url_old;
     lmsg += F("\" to \"");
     lmsg += g_url;

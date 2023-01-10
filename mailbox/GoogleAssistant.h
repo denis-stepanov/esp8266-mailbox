@@ -15,13 +15,18 @@ namespace ds {
       String url;                          // Assistant relay location
       WiFiClient client;                   // WiFi interface
       HTTPClient http;                     // HTTP interface
+      bool active;                         // True if service is active
 
     public:
+      GoogleAssistant();                   // Constructor
       const String& getURL() const;        // Return assistant relay location
       void setURL(const String& /* new_url */);     // Set assistant relay location
       void begin();                        // Begin operations
       void load();                         // Load configuration from disk
-      void save(const String& /* new_url */);       // Save configuration to disk
+      void save(const String& /* new_url */, bool /* new_active */); // Save configuration to disk
+      void activate();                     // Activate service
+      void deactiave();                    // Deactivate service
+      bool isActive() const;               // Return true if service is active
       bool broadcast(const String& /* msg */);      // Broadcast message
   };
 
