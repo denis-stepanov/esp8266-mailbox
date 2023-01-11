@@ -132,7 +132,7 @@ bool VirtualMailBox::isOK() {
     alarm = ALARM_ABSENT;    // Override possible stale higher level alarm
     String lmsg = F("Marking mailbox ");
     lmsg += getName();
-    lmsg += " as absent";
+    lmsg += F(" as absent");
     System::appLogWriteLn(lmsg, true);
 #ifdef DS_SUPPORT_TELEGRAM
     telegram.sendEvent(*this);
@@ -148,7 +148,7 @@ bool VirtualMailBox::isOK() {
   if (getBattery() <= BATTERY_LEVEL_LOW && !low_battery_reported) {
     String lmsg = F("Mailbox ");
     lmsg += getName();
-    lmsg += " is low on battery";
+    lmsg += F(" is low on battery");
     System::appLogWriteLn(lmsg, true);
 #ifdef DS_SUPPORT_TELEGRAM
     telegram.sendBatteryLow(*this);
