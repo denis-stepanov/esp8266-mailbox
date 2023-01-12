@@ -202,9 +202,9 @@ static void serveConf() {
 #endif // DS_SUPPORT_GOOGLE_ASSISTANT
 
 #ifdef DS_SUPPORT_GOOGLE_ASSISTANT  // ... or other feature
-  page += F("<p><button type=\"submit\" name=\"action\" value=\"save\">Save</button></p>");
+  page += F("  <p><button type=\"submit\" name=\"action\" value=\"save\">Save</button></p>");
 #else
-  page += F("<p>No global settings defined</p>");
+  page += F("  <p>No global settings defined</p>");
 #endif // DS_SUPPORT_GOOGLE_ASSISTANT
 
   page += F("</form>\n");
