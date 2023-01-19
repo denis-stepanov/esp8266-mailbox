@@ -1,7 +1,7 @@
 /* DS mailbox automation
  * * Local module
  * * * Mailbox Manager implementation
- * (c) DNS 2020-2022
+ * (c) DNS 2020-2023
  */
 
 #include "MySystem.h"         // System log
@@ -46,7 +46,7 @@ void MailBoxManager::begin() {
 
 // Regular check of mailboxes' status
 void MailBoxManager::update(const bool force) {
-  if (System::newHour() || force) {
+  if ((System::getTimeSyncStatus() != TIME_SYNC_NONE && System::newHour()) || force) {
     auto nok = false;
 
     for (auto mb : mailboxes)
