@@ -195,7 +195,7 @@ static void serveConf() {
   if (google_assistant.isActive())
     page += F(" checked=\"checked\"");
   page += F("/>\n"
-    "    <label for=\"g_url\">Google Assistant Relay location (<i>http://IP:PORT/assistant</i>): </label>\n"
+    "    <label for=\"g_url\">Google Assistant Relay (<i>http://IP:PORT/assistant</i>): </label>\n"
     "    <input type=\"text\" size=\"35\" id=\"g_url\" name=\"g_url\" value=\"");
   page += google_assistant.getURL();
   page += F("\"/>\n  </p>\n");
