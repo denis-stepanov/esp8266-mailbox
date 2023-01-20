@@ -194,11 +194,11 @@ static void serveConf() {
     "    <input name=\"g_active\" type=\"checkbox\"");
   if (google_assistant.isActive())
     page += F(" checked=\"checked\"");
-  page += F(" style=\"vertical-align: middle;\"/>\n"
-    "    <label for=\"g_url\">Google Assistant Relay location (full path): </label>"
-    "    <input type=\"text\" id=\"g_url\" name=\"g_url\" value=\"");
+  page += F("/>\n"
+    "    <label for=\"g_url\">Google Assistant Relay location (<i>http://IP:PORT/assistant</i>): </label>\n"
+    "    <input type=\"text\" size=\"35\" id=\"g_url\" name=\"g_url\" value=\"");
   page += google_assistant.getURL();
-  page += F("\"/></p>\n");
+  page += F("\"/>\n  </p>\n");
 #endif // DS_SUPPORT_GOOGLE_ASSISTANT
 
 #ifdef DS_SUPPORT_GOOGLE_ASSISTANT  // ... or other feature
