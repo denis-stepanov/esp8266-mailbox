@@ -15,7 +15,7 @@ using namespace ds;
 static const char *GA_CONF_FILE_NAME PROGMEM = "/google.cfg";
 
 // Constructor
-GoogleAssistant::GoogleAssistant(): active(true) {
+GoogleAssistant::GoogleAssistant(): active(false) {
 }
 
 // Return assistant relay location
