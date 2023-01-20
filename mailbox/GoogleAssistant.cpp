@@ -82,7 +82,7 @@ bool GoogleAssistant::broadcast(__attribute__ ((unused)) const String& msg) {
 
 #ifdef DS_DEVBOARD
   const int ret = HTTP_CODE_OK;    // Skip assistant announcements
-  System::log->printf(TIMED("TEST: Emulating broadcast to Google Assistant... "));
+  System::log->printf(TIMED("TEST: Emulating broadcast to Google Assistant...\n"));
 #else
   if (!url.length())
     return false;

@@ -198,7 +198,11 @@ static void serveConf() {
     "    <label for=\"g_url\">Google Assistant Relay (<i>http://IP:PORT/assistant</i>): </label>\n"
     "    <input type=\"text\" size=\"35\" id=\"g_url\" name=\"g_url\" value=\"");
   page += google_assistant.getURL();
-  page += F("\"/>\n  </p>\n");
+  page += F("\"/>\n");
+  page += F(
+    "    <button type=\"submit\" name=\"action\" value=\"test_google\">Test</button>\n"
+    );
+  page += F("  </p>\n");
 #endif // DS_SUPPORT_GOOGLE_ASSISTANT
 
 #ifdef DS_SUPPORT_GOOGLE_ASSISTANT  // ... or other feature
@@ -215,6 +219,8 @@ static void serveConf() {
 // Serve the global configuration saving page
 static void serveConfSave() {
 
+  String action;
+  bool action_ok = false;
 #ifdef DS_SUPPORT_GOOGLE_ASSISTANT
   String g_url;
   auto g_url_ok = false;
@@ -223,8 +229,12 @@ static void serveConfSave() {
 
   for (unsigned int i = 0; i < (unsigned int)System::web_server.args(); i++) {
     String arg_name = System::web_server.argName(i);
-
+    if (arg_name == "action") {
+      action = System::web_server.arg(i);
+      action_ok = true;
+    }
 #ifdef DS_SUPPORT_GOOGLE_ASSISTANT
+    else
     if (arg_name == "g_url") {
       g_url = System::web_server.arg(i);
       g_url_ok = true;
@@ -234,23 +244,41 @@ static void serveConfSave() {
 #endif // DS_SUPPORT_GOOGLE_ASSISTANT
   }
 
+  if (action_ok) {
+    if (action == "save") {
 #ifdef DS_SUPPORT_GOOGLE_ASSISTANT
-  if (g_url_ok) {
-    const String g_url_old = google_assistant.getURL();
-    google_assistant.save(g_url, g_active);
-    String lmsg = F("Google Assistant ");
-    lmsg += g_active ? F("") : F("de");
-    lmsg += F("activated and URL updated from \"");
-    lmsg += g_url_old;
-    lmsg += F("\" to \"");
-    lmsg += g_url;
-    lmsg += F("\" from ");
-    lmsg += System::web_server.client().remoteIP().toString();
-    System::appLogWriteLn(lmsg, true);
-  }
+      if (g_url_ok) {
+        const String g_url_old = google_assistant.getURL();
+        google_assistant.save(g_url, g_active);
+        String lmsg = F("Google Assistant ");
+        lmsg += g_active ? F("") : F("de");
+        lmsg += F("activated and URL updated from \"");
+        lmsg += g_url_old;
+        lmsg += F("\" to \"");
+        lmsg += g_url;
+        lmsg += F("\" from ");
+        lmsg += System::web_server.client().remoteIP().toString();
+        System::appLogWriteLn(lmsg, true);
+      }
 #endif // DS_SUPPORT_GOOGLE_ASSISTANT
+      pushHeader(F("Configuration Saved"), true);
+    }
+#ifdef DS_SUPPORT_GOOGLE_ASSISTANT
+    else
+    if (action == "test_google") {
+      if (g_url_ok && g_url.length()) {
+        google_assistant.broadcast(F("Hi there! This is a test message from the mailbox app."));
+        pushHeader(F("Test Message Sent"), true);
+        System::log->printf("Google Assistant test message sent from %s\n", System::web_server.client().remoteIP().toString().c_str());
+      } else
+        pushHeader(F("Invalid Parameters"), true);
+    }
+#endif // DS_SUPPORT_GOOGLE_ASSISTANT
+    else
+      pushHeader(F("Unknown action"), true);
+  } else
+    pushHeader(F("Invalid Parameters"), true);
 
-  pushHeader(F("Configuration Saved"), true);
   pushFooter();
   System::sendWebPage();
 }
