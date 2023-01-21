@@ -1,6 +1,7 @@
 /* DS mailbox automation
  * * Local module
  * * * Google Assistant reporting definition
+ * (c) DNS 2020-2023
  */
 
 #ifndef _DS_GOOGLEASSISTANT_H_
@@ -11,12 +12,22 @@
 namespace ds {
 
   class GoogleAssistant {
-      static const char *url;              // Assistant relay location
+      String url;                          // Assistant relay location
       WiFiClient client;                   // WiFi interface
       HTTPClient http;                     // HTTP interface
+      bool active;                         // True if service is active
 
     public:
-      bool broadcast(const String& msg);   // Broadcast message
+      GoogleAssistant();                   // Constructor
+      const String& getURL() const;        // Return assistant relay location
+      void setURL(const String& /* new_url */);     // Set assistant relay location
+      void begin();                        // Begin operations
+      void load();                         // Load configuration from disk
+      void save(const String& /* new_url */, bool /* new_active */); // Save configuration to disk
+      void activate();                     // Activate service
+      void deactiave();                    // Deactivate service
+      bool isActive() const;               // Return true if service is active
+      bool broadcast(const String& /* msg */);      // Broadcast message
   };
 
 } // namespace ds

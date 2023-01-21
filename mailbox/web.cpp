@@ -1,7 +1,7 @@
 /* DS mailbox automation
  * * Local module
  * * * Web pages implementation
- * (c) DNS 2020
+ * (c) DNS 2020-2023
  */
 
 #include "MySystem.h"               // System-level definitions
@@ -9,11 +9,17 @@
 #ifndef DS_MAILBOX_REMOTE
 
 #include "MailBoxManager.h"         // Mailbox manager
+#ifdef DS_SUPPORT_GOOGLE_ASSISTANT
+#include "GoogleAssistant.h"        // Google interface
+#endif // DS_SUPPORT_GOOGLE_ASSISTANT
 
 using namespace ds;
 
 // Server data providers
 extern MailBoxManager mailbox_manager;     // Mailbox manager instance
+#ifdef DS_SUPPORT_GOOGLE_ASSISTANT
+extern GoogleAssistant google_assistant;   // Google interface
+#endif // DS_SUPPORT_GOOGLE_ASSISTANT
 
 // Initialize page buffer with page header
 static void pushHeader(const String& title, bool redirect = false) {
@@ -48,6 +54,7 @@ static void pushHeader(const String& title, bool redirect = false) {
   page += F(
     "<table cellpadding=\"0\" cellspacing=\"0\" width=\"100%\"><tr><td>"
     "[ <a href=\"/\">home</a> ]&nbsp;&nbsp;&nbsp;"
+    "[ <a href=\"/conf\">conf</a> ]&nbsp;&nbsp;&nbsp;"
     "[ <a href=\"/log\">log</a> ]&nbsp;&nbsp;&nbsp;"
     "[ <a href=\"/about\">about</a> ]&nbsp;&nbsp;&nbsp;"
     "</td><td align=\"right\">"
@@ -175,12 +182,115 @@ static void serveAcknowledge() {
   System::sendWebPage();
 }
 
+// Serve the global configuration page
+static void serveConf() {
+  pushHeader(F("Global Configuration"));
+  String &page = System::web_page;
+  page += F("<form action=\"/confSave\">\n");
+
+#ifdef DS_SUPPORT_GOOGLE_ASSISTANT
+  page += F(
+    "  <p>\n"
+    "    <input name=\"g_active\" type=\"checkbox\"");
+  if (google_assistant.isActive())
+    page += F(" checked=\"checked\"");
+  page += F("/>\n"
+    "    <label for=\"g_url\">Google Assistant Relay (<i>http://IP:PORT/assistant</i>): </label>\n"
+    "    <input type=\"text\" size=\"35\" id=\"g_url\" name=\"g_url\" value=\"");
+  page += google_assistant.getURL();
+  page += F("\"/>\n");
+  page += F(
+    "    <button type=\"submit\" name=\"action\" value=\"test_google\">Test</button>\n"
+    );
+  page += F("  </p>\n");
+#endif // DS_SUPPORT_GOOGLE_ASSISTANT
+
+#ifdef DS_SUPPORT_GOOGLE_ASSISTANT  // ... or other feature
+  page += F("  <p><button type=\"submit\" name=\"action\" value=\"save\">Save</button></p>");
+#else
+  page += F("  <p>No global settings defined</p>");
+#endif // DS_SUPPORT_GOOGLE_ASSISTANT
+
+  page += F("</form>\n");
+  pushFooter();
+  System::sendWebPage();
+}
+
+// Serve the global configuration saving page
+static void serveConfSave() {
+
+  String action;
+  bool action_ok = false;
+#ifdef DS_SUPPORT_GOOGLE_ASSISTANT
+  String g_url;
+  auto g_url_ok = false;
+  auto g_active = false;
+#endif // DS_SUPPORT_GOOGLE_ASSISTANT
+
+  for (unsigned int i = 0; i < (unsigned int)System::web_server.args(); i++) {
+    String arg_name = System::web_server.argName(i);
+    if (arg_name == "action") {
+      action = System::web_server.arg(i);
+      action_ok = true;
+    }
+#ifdef DS_SUPPORT_GOOGLE_ASSISTANT
+    else
+    if (arg_name == "g_url") {
+      g_url = System::web_server.arg(i);
+      g_url_ok = true;
+    } else
+    if (arg_name == "g_active")
+      g_active = true;
+#endif // DS_SUPPORT_GOOGLE_ASSISTANT
+  }
+
+  if (action_ok) {
+    if (action == "save") {
+#ifdef DS_SUPPORT_GOOGLE_ASSISTANT
+      if (g_url_ok) {
+        const String g_url_old = google_assistant.getURL();
+        google_assistant.save(g_url, g_active);
+        String lmsg = F("Google Assistant ");
+        lmsg += g_active ? F("") : F("de");
+        lmsg += F("activated and URL updated from \"");
+        lmsg += g_url_old;
+        lmsg += F("\" to \"");
+        lmsg += g_url;
+        lmsg += F("\" from ");
+        lmsg += System::web_server.client().remoteIP().toString();
+        System::appLogWriteLn(lmsg, true);
+      }
+#endif // DS_SUPPORT_GOOGLE_ASSISTANT
+      pushHeader(F("Configuration Saved"), true);
+    }
+#ifdef DS_SUPPORT_GOOGLE_ASSISTANT
+    else
+    if (action == "test_google") {
+      if (g_url_ok && g_url.length()) {
+        google_assistant.broadcast(F("Hi there! This is a test message from the mailbox app."));
+        pushHeader(F("Test Message Sent"), true);
+        System::log->printf("Google Assistant test message sent from %s\n", System::web_server.client().remoteIP().toString().c_str());
+      } else
+        pushHeader(F("Invalid Parameters"), true);
+    }
+#endif // DS_SUPPORT_GOOGLE_ASSISTANT
+    else
+      pushHeader(F("Unknown action"), true);
+  } else
+    pushHeader(F("Invalid Parameters"), true);
+
+  pushFooter();
+  System::sendWebPage();
+}
+
 // Register web pages with web server
 // Note that this function cannot be called "registerWebPages" after the System class field, otherwise it will not work for an obscure reason
 static void registerPages() {
   System::web_server.on("/",        serveRoot);
   System::web_server.on("/mailbox", serveMailBox);
   System::web_server.on("/save",    serveSave);
+  System::web_server.on("/conf",    serveConf);
+  System::web_server.on("/confSave",serveConfSave);
   System::web_server.on("/ack",     serveAcknowledge);
 }
 
