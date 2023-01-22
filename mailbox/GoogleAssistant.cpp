@@ -66,7 +66,7 @@ void GoogleAssistant::activate() {
 }
 
 // Deactivate service
-void GoogleAssistant::deactiave() {
+void GoogleAssistant::deactivate() {
   active = false;
 }
 
