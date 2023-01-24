@@ -114,12 +114,32 @@ bool Telegram::isActive() const {
 // Send message with logging
 bool Telegram::sendMessage(const String& chat_id, const String& to, const String& cmd, const String& msg) {
   if (System::networkIsConnected()) {
-    System::log->printf(TIMED("Serving Telegram command \""));
-    System::log->print(cmd);
-    System::log->print(F("\" to "));
-    System::log->print(to);
-    System::log->println(chat_id[0] == '-' ? F(" in public") : F(" in private"));
-    return bot.sendMessage(chat_id, msg, F("Markdown"));
+    if (token.length() && chat_id.length()) {
+      System::log->printf(TIMED("Serving Telegram command \""));
+      System::log->print(cmd);
+      System::log->print(F("\" to "));
+      System::log->print(to);
+      System::log->println(chat_id[0] == '-' ? F(" in public") : F(" in private"));
+      return bot.sendMessage(chat_id, msg, F("Markdown"));
+    } else {
+      System::log->printf(TIMED("Telegram message not sent: invalid credentials\n"));
+      return false;
+    }
+  } else {
+    System::log->printf(TIMED("Telegram message not sent: network is down\n"));
+    return false;
+  }
+}
+
+// Send test message
+bool Telegram::sendTest() {
+  if (!active)
+    return false;
+
+  if (System::networkIsConnected()) {
+
+    // Do not timestamp test message
+    return bot.sendMessage(chat_id, F("Hi there! This is a test message from the mailbox app."));
   } else {
     System::log->printf(TIMED("Telegram message not sent: network is down\n"));
     return false;

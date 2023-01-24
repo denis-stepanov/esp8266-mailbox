@@ -40,6 +40,7 @@ namespace ds {
       void activate();                                // Activate service
       void deactivate();                              // Deactivate service
       bool isActive() const;                          // Return true if service is active
+      bool sendTest();                                // Send test message
       bool sendBoot();                                // Send boot notification
       bool sendBatteryLow(const VirtualMailBox& /* mb */); // Send low battery notification
       bool sendLostEvent(uint16_t /* num */);         // Send lost event notification

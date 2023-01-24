@@ -9,6 +9,9 @@
 #ifndef DS_MAILBOX_REMOTE
 
 #include "MailBoxManager.h"         // Mailbox manager
+#ifdef DS_SUPPORT_TELEGRAM
+#include "Telegram.h"               // Telegram interface
+#endif // DS_SUPPORT_TELEGRAM
 #ifdef DS_SUPPORT_GOOGLE_ASSISTANT
 #include "GoogleAssistant.h"        // Google interface
 #endif // DS_SUPPORT_GOOGLE_ASSISTANT
@@ -17,6 +20,9 @@ using namespace ds;
 
 // Server data providers
 extern MailBoxManager mailbox_manager;     // Mailbox manager instance
+#ifdef DS_SUPPORT_TELEGRAM
+extern Telegram telegram;                  // Telegram interface
+#endif // DS_SUPPORT_TELEGRAM
 #ifdef DS_SUPPORT_GOOGLE_ASSISTANT
 extern GoogleAssistant google_assistant;   // Google interface
 #endif // DS_SUPPORT_GOOGLE_ASSISTANT
@@ -188,6 +194,28 @@ static void serveConf() {
   String &page = System::web_page;
   page += F("<form action=\"/confSave\">\n");
 
+#ifdef DS_SUPPORT_TELEGRAM
+  page += F(
+    "  <p>\n"
+    "    <input name=\"t_active\" type=\"checkbox\"");
+  if (telegram.isActive())
+    page += F(" checked=\"checked\"");
+  page += F("/>\n"
+    "    <label for=\"t_token\">Telegram Token: </label>\n"
+    "    <input type=\"text\" size=\"35\" id=\"t_token\" name=\"t_token\" value=\"");
+  page += telegram.getToken();
+  page += F("\"/>\n");
+  page += F("    <br/>\n"
+    "    <label for=\"t_chat_id\">Telegram Chat ID: </label>\n"
+    "    <input type=\"text\" size=\"35\" id=\"t_chat_id\" name=\"t_chat_id\" value=\"");
+  page += telegram.getChatID();
+  page += F("\"/>\n");
+  page += F(
+    "    <button type=\"submit\" name=\"action\" value=\"test_telegram\">Test</button>\n"
+    );
+  page += F("  </p>\n");
+#endif // DS_SUPPORT_TELEGRAM
+
 #ifdef DS_SUPPORT_GOOGLE_ASSISTANT
   page += F(
     "  <p>\n"
@@ -205,11 +233,11 @@ static void serveConf() {
   page += F("  </p>\n");
 #endif // DS_SUPPORT_GOOGLE_ASSISTANT
 
-#ifdef DS_SUPPORT_GOOGLE_ASSISTANT  // ... or other feature
+#if defined (DS_SUPPORT_TELEGRAM) || defined(DS_SUPPORT_GOOGLE_ASSISTANT)
   page += F("  <p><button type=\"submit\" name=\"action\" value=\"save\">Save</button></p>");
 #else
   page += F("  <p>No global settings defined</p>");
-#endif // DS_SUPPORT_GOOGLE_ASSISTANT
+#endif // DS_SUPPORT_TELEGRAM || DS_SUPPORT_GOOGLE_ASSISTANT
 
   page += F("</form>\n");
   pushFooter();
@@ -221,6 +249,15 @@ static void serveConfSave() {
 
   String action;
   bool action_ok = false;
+
+#ifdef DS_SUPPORT_TELEGRAM
+  String t_token;
+  String t_chat_id;
+  auto t_token_ok = false;
+  auto t_chat_id_ok = false;
+  auto t_active = false;
+#endif // DS_SUPPORT_TELEGRAM
+
 #ifdef DS_SUPPORT_GOOGLE_ASSISTANT
   String g_url;
   auto g_url_ok = false;
@@ -233,6 +270,19 @@ static void serveConfSave() {
       action = System::web_server.arg(i);
       action_ok = true;
     }
+#ifdef DS_SUPPORT_TELEGRAM
+    else
+    if (arg_name == "t_token") {
+      t_token = System::web_server.arg(i);
+      t_token_ok = true;
+    } else
+    if (arg_name == "t_chat_id") {
+      t_chat_id = System::web_server.arg(i);
+      t_chat_id_ok = true;
+    } else
+    if (arg_name == "t_active")
+      t_active = true;
+#endif // DS_SUPPORT_TELEGRAM
 #ifdef DS_SUPPORT_GOOGLE_ASSISTANT
     else
     if (arg_name == "g_url") {
@@ -246,6 +296,16 @@ static void serveConfSave() {
 
   if (action_ok) {
     if (action == "save") {
+#ifdef DS_SUPPORT_TELEGRAM
+      if (t_token_ok && t_chat_id_ok) {
+        telegram.save(t_token, t_chat_id, t_active);
+        String lmsg = F("Telegram ");
+        lmsg += t_active ? F("") : F("de");
+        lmsg += F("activated and reconfigured from ");
+        lmsg += System::web_server.client().remoteIP().toString();
+        System::appLogWriteLn(lmsg, true);
+      }
+#endif // DS_SUPPORT_TELEGRAM
 #ifdef DS_SUPPORT_GOOGLE_ASSISTANT
       if (g_url_ok) {
         const String g_url_old = google_assistant.getURL();
@@ -263,13 +323,32 @@ static void serveConfSave() {
 #endif // DS_SUPPORT_GOOGLE_ASSISTANT
       pushHeader(F("Configuration Saved"), true);
     }
+#ifdef DS_SUPPORT_TELEGRAM
+    else
+    if (action == "test_telegram") {
+      if (t_token_ok && t_token.length() && t_chat_id_ok && t_chat_id.length()) {
+        if (telegram.sendTest()) {
+          pushHeader(F("Test Message Sent"), true);
+          System::log->printf(TIMED("Telegram test message sent from %s\n"), System::web_server.client().remoteIP().toString().c_str());
+        } else {
+          pushHeader(F("Message Sending Error"), true);
+          System::log->printf(TIMED("Telegram test message error\n"));
+        }
+      } else
+        pushHeader(F("Invalid Parameters"), true);
+    }
+#endif // DS_SUPPORT_GOOGLE_ASSISTANT
 #ifdef DS_SUPPORT_GOOGLE_ASSISTANT
     else
     if (action == "test_google") {
       if (g_url_ok && g_url.length()) {
-        google_assistant.broadcast(F("Hi there! This is a test message from the mailbox app."));
-        pushHeader(F("Test Message Sent"), true);
-        System::log->printf("Google Assistant test message sent from %s\n", System::web_server.client().remoteIP().toString().c_str());
+        if (google_assistant.broadcast(F("Hi there! This is a test message from the mailbox app."))) {
+          pushHeader(F("Test Message Sent"), true);
+          System::log->printf(TIMED("Google Assistant test message sent from %s\n"), System::web_server.client().remoteIP().toString().c_str());
+        } else {
+          pushHeader(F("Message Sending Error"), true);
+          System::log->printf(TIMED("Google Assistant test message error\n"));
+        }
       } else
         pushHeader(F("Invalid Parameters"), true);
     }
