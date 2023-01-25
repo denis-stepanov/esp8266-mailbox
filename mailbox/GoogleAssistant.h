@@ -27,7 +27,7 @@ namespace ds {
       void activate();                     // Activate service
       void deactivate();                   // Deactivate service
       bool isActive() const;               // Return true if service is active
-      bool broadcast(const String& /* msg */);      // Broadcast message
+      bool broadcast(const String& /* msg */, const bool force = false); // Broadcast message
   };
 
 } // namespace ds

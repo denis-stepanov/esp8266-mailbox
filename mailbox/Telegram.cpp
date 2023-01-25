@@ -93,17 +93,21 @@ void Telegram::save(const String& new_token, const String& new_chat_id, bool new
 
 // Activate service
 void Telegram::activate() {
-  active = true;
-  timer.arm();
+  if (!active) {
+    active = true;
+    timer.arm();
+  }
 }
 
 // Deactivate service
 void Telegram::deactivate() {
-  timer.disarm();
-  active = false;
-  boot_reported = false;
-  bounce_reported = false;
-  update_in_progress = false;
+  if (active) {
+    timer.disarm();
+    active = false;
+    boot_reported = false;
+    bounce_reported = false;
+    update_in_progress = false;
+  }
 }
 
 // Return true if service is active
@@ -133,8 +137,8 @@ bool Telegram::sendMessage(const String& chat_id, const String& to, const String
 
 // Send test message
 bool Telegram::sendTest() {
-  if (!active)
-    return false;
+
+  // Do not check "active" flag here, as this method is called intentionally for testing
 
   if (System::networkIsConnected()) {
 

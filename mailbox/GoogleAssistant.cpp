@@ -76,8 +76,9 @@ bool GoogleAssistant::isActive() const {
 }
 
 // Broadcast message
-bool GoogleAssistant::broadcast(const String& msg) {
-  if (!active || !url.length())
+bool GoogleAssistant::broadcast(const String& msg, const bool force) {
+
+  if (!url.length() || (!active && !force))
     return false;
 
   http.begin(client, url);

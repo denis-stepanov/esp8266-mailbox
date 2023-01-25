@@ -342,7 +342,7 @@ static void serveConfSave() {
     else
     if (action == "test_google") {
       if (g_url_ok && g_url.length()) {
-        if (google_assistant.broadcast(F("Hi there! This is a test message from the mailbox app."))) {
+        if (google_assistant.broadcast(F("Hi there! This is a test message from the mailbox app.")), true) {
           pushHeader(F("Test Message Sent"), true);
           System::log->printf(TIMED("Google Assistant test message sent from %s\n"), System::web_server.client().remoteIP().toString().c_str());
         } else {
