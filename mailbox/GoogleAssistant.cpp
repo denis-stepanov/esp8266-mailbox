@@ -76,16 +76,10 @@ bool GoogleAssistant::isActive() const {
 }
 
 // Broadcast message
-bool GoogleAssistant::broadcast(__attribute__ ((unused)) const String& msg) {
-  if (!active)
+bool GoogleAssistant::broadcast(const String& msg) {
+  if (!active || !url.length())
     return false;
 
-#ifdef DS_DEVBOARD
-  const int ret = HTTP_CODE_OK;    // Skip assistant announcements
-  System::log->printf(TIMED("TEST: Emulating broadcast to Google Assistant...\n"));
-#else
-  if (!url.length())
-    return false;
   http.begin(client, url);
   http.addHeader(F("Content-Type"), F("application/json"));
   String payload;
@@ -96,7 +90,6 @@ bool GoogleAssistant::broadcast(__attribute__ ((unused)) const String& msg) {
   const auto ret = http.POST(payload);
   System::log->println(ret ? F("OK") : F("failed"));
   http.end();
-#endif // DS_DEVBOARD
 
   return ret == HTTP_CODE_OK;
 }
