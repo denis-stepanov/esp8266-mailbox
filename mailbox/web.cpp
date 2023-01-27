@@ -327,12 +327,14 @@ static void serveConfSave() {
     else
     if (action == "test_telegram") {
       if (t_token_ok && t_token.length() && t_chat_id_ok && t_chat_id.length()) {
-        if (telegram.sendTest()) {
-          pushHeader(F("Test Message Sent"), true);
+        if (telegram.sendTest(t_token, t_chat_id)) {
           System::log->printf(TIMED("Telegram test message sent from %s\n"), System::web_server.client().remoteIP().toString().c_str());
+          pushHeader(F("Test Message Sent"), true);
+          if (telegram.getToken() != t_token || telegram.getChatID() != t_chat_id)
+            System::web_page += F("<p>If OK, do not forget to save your new settings.</p>");
         } else {
-          pushHeader(F("Message Sending Error"), true);
           System::log->printf(TIMED("Telegram test message error\n"));
+          pushHeader(F("Message Sending Error"), true);
         }
       } else
         pushHeader(F("Invalid Parameters"), true);
@@ -342,12 +344,14 @@ static void serveConfSave() {
     else
     if (action == "test_google") {
       if (g_url_ok && g_url.length()) {
-        if (google_assistant.broadcast(F("Hi there! This is a test message from the mailbox app.")), true) {
-          pushHeader(F("Test Message Sent"), true);
+        if (google_assistant.sendTest(g_url)) {
           System::log->printf(TIMED("Google Assistant test message sent from %s\n"), System::web_server.client().remoteIP().toString().c_str());
+          pushHeader(F("Test Message Sent"), true);
+          if (google_assistant.getURL() != g_url)
+            System::web_page += F("<p>If OK, do not forget to save your new settings.</p>");
         } else {
-          pushHeader(F("Message Sending Error"), true);
           System::log->printf(TIMED("Google Assistant test message error\n"));
+          pushHeader(F("Message Sending Error"), true);
         }
       } else
         pushHeader(F("Invalid Parameters"), true);

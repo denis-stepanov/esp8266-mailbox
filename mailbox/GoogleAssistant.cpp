@@ -95,4 +95,19 @@ bool GoogleAssistant::broadcast(const String& msg, const bool force) {
   return ret == HTTP_CODE_OK;
 }
 
+// Send test message
+bool GoogleAssistant::sendTest(const String& new_url) {
+
+  if (!new_url.length())
+    return false;
+
+  const auto prev_url = url;
+  url = new_url;
+
+  const auto ret = broadcast(F("Hi there! This is a test message from the mailbox app."), true);
+
+  url = prev_url;
+  return ret;
+}
+
 #endif // DS_SUPPORT_GOOGLE_ASSISTANT && !DS_MAILBOX_REMOTE

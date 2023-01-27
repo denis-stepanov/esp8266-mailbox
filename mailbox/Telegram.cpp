@@ -136,14 +136,22 @@ bool Telegram::sendMessage(const String& chat_id, const String& to, const String
 }
 
 // Send test message
-bool Telegram::sendTest() {
+bool Telegram::sendTest(const String& new_token, const String& new_chat_id) {
 
   // Do not check "active" flag here, as this method is called intentionally for testing
 
   if (System::networkIsConnected()) {
 
+    if (token != new_token)
+      bot.updateToken(new_token);
+
     // Do not timestamp test message
-    return bot.sendMessage(chat_id, F("Hi there! This is a test message from the mailbox app."));
+    const auto ret = bot.sendMessage(new_chat_id, F("Hi there! This is a test message from the mailbox app."));
+
+    if (token != new_token)
+      bot.updateToken(token);
+
+    return ret;
   } else {
     System::log->printf(TIMED("Telegram message not sent: network is down\n"));
     return false;
