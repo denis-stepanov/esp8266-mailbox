@@ -200,20 +200,17 @@ static void serveConf() {
     "    <input name=\"t_active\" type=\"checkbox\"");
   if (telegram.isActive())
     page += F(" checked=\"checked\"");
-  page += F("/>\n"
-    "    <label for=\"t_token\">Telegram Token: </label>\n"
-    "    <input type=\"text\" size=\"35\" id=\"t_token\" name=\"t_token\" value=\"");
+  page += F("/> Telegram:<br/>\n"
+    "    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label for=\"t_token\">Bot Token:</label>\n"
+    "    <input type=\"text\" size=\"40\" id=\"t_token\" name=\"t_token\" value=\"");
   page += telegram.getToken();
-  page += F("\"/>\n");
-  page += F("    <br/>\n"
-    "    <label for=\"t_chat_id\">Telegram Chat ID: </label>\n"
-    "    <input type=\"text\" size=\"35\" id=\"t_chat_id\" name=\"t_chat_id\" value=\"");
+  page += F("\"/><br/>\n"
+    "    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label for=\"t_chat_id\">Chat ID:&nbsp;&nbsp;&nbsp;&nbsp;</label>\n"
+    "    <input type=\"text\" size=\"40\" id=\"t_chat_id\" name=\"t_chat_id\" value=\"");
   page += telegram.getChatID();
-  page += F("\"/>\n");
-  page += F(
+  page += F("\"/>\n"
     "    <button type=\"submit\" name=\"action\" value=\"test_telegram\">Test</button>\n"
-    );
-  page += F("  </p>\n");
+    "  </p>\n");
 #endif // DS_SUPPORT_TELEGRAM
 
 #ifdef DS_SUPPORT_GOOGLE_ASSISTANT
@@ -222,15 +219,13 @@ static void serveConf() {
     "    <input name=\"g_active\" type=\"checkbox\"");
   if (google_assistant.isActive())
     page += F(" checked=\"checked\"");
-  page += F("/>\n"
-    "    <label for=\"g_url\">Google Assistant Relay (<i>http://IP:PORT/assistant</i>): </label>\n"
-    "    <input type=\"text\" size=\"35\" id=\"g_url\" name=\"g_url\" value=\"");
+  page += F("/> Google Assistant:<br/>\n"
+    "    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label for=\"g_url\">Relay URL (<i>http://IP:PORT/assistant</i>): </label>\n"
+    "    <input type=\"text\" size=\"40\" id=\"g_url\" name=\"g_url\" value=\"");
   page += google_assistant.getURL();
-  page += F("\"/>\n");
-  page += F(
+  page += F("\"/>\n"
     "    <button type=\"submit\" name=\"action\" value=\"test_google\">Test</button>\n"
-    );
-  page += F("  </p>\n");
+    "  </p>\n");
 #endif // DS_SUPPORT_GOOGLE_ASSISTANT
 
 #if defined (DS_SUPPORT_TELEGRAM) || defined(DS_SUPPORT_GOOGLE_ASSISTANT)
