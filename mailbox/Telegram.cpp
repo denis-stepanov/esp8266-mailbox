@@ -61,8 +61,8 @@ void Telegram::load() {
   auto file = System::fs.open(TG_CONF_FILE_NAME, "r");
   if (!file)
     return;
-  token = file.readStringUntil('\r');
-  chat_id = file.readStringUntil('\r');
+  setToken(file.readStringUntil('\r'));
+  setChatID(file.readStringUntil('\r'));
   const auto is_active = file.parseInt();
   file.close();
   if (is_active)
