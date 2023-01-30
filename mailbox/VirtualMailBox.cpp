@@ -274,7 +274,8 @@ VirtualMailBox *VirtualMailBox::load(const uint8_t id) {
   auto file = System::fs.open(getConfFileName(id), "r");
   if (!file)
     return nullptr;
-  auto label = file.readStringUntil('\r');
+  auto label = file.readStringUntil('\n');
+  label.trim();
   time_t last_seen = file.parseInt();
   uint8_t battery = file.parseInt();
   file.close();
