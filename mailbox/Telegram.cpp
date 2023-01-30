@@ -36,6 +36,7 @@ const String& Telegram::getToken() const {
 // Set bot token
 void Telegram::setToken(const String& new_token) {
   token = new_token;
+  token.trim();
   bot.updateToken(token);
 }
 
@@ -47,6 +48,7 @@ const String& Telegram::getChatID() const {
 // Set chat ID
 void Telegram::setChatID(const String& new_chat_id) {
   chat_id = new_chat_id;
+  chat_id.trim();
 }
 
 // Begin operations
@@ -61,8 +63,8 @@ void Telegram::load() {
   auto file = System::fs.open(TG_CONF_FILE_NAME, "r");
   if (!file)
     return;
-  setToken(file.readStringUntil('\r'));
-  setChatID(file.readStringUntil('\r'));
+  setToken(file.readStringUntil('\n'));
+  setChatID(file.readStringUntil('\n'));
   const auto is_active = file.parseInt();
   file.close();
   if (is_active)

@@ -26,6 +26,7 @@ const String& GoogleAssistant::getURL() const {
 // Set assistant relay location
 void GoogleAssistant::setURL(const String& new_url) {
   url = new_url;
+  url.trim();
 }
 
 // Begin operations
@@ -40,7 +41,7 @@ void GoogleAssistant::load() {
   auto file = System::fs.open(GA_CONF_FILE_NAME, "r");
   if (!file)
     return;
-  url = file.readStringUntil('\r');
+  setURL(file.readStringUntil('\n'));
   active = file.parseInt();
   file.close();
   System::log->printf(TIMED("%s: Google Assistant Relay location: %s, %sactive\n"), GA_CONF_FILE_NAME, url.c_str(), active ? "" : "in");
