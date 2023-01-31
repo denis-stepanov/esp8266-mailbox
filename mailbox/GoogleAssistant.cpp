@@ -26,38 +26,43 @@ const String& GoogleAssistant::getURL() const {
 // Set assistant relay location
 void GoogleAssistant::setURL(const String& new_url) {
   url = new_url;
+  url.trim();
 }
 
 // Begin operations
 void GoogleAssistant::begin() {
 
   // Load configuration if present
-  load();
+  if (load())
+    System::log->printf(TIMED("%s: Google Assistant Relay location: %s, %sactive\n"), GA_CONF_FILE_NAME, url.c_str(), active ? "" : "in");
 }
 
 // Load configuration from disk
-void GoogleAssistant::load() {
+bool GoogleAssistant::load() {
   auto file = System::fs.open(GA_CONF_FILE_NAME, "r");
-  if (!file)
-    return;
-  url = file.readStringUntil('\r');
+  if (!file) {
+    System::log->printf(TIMED("No saved Google configuration found\n"));
+    return false;
+  }
+  setURL(file.readStringUntil('\n'));
   active = file.parseInt();
   file.close();
-  System::log->printf(TIMED("%s: Google Assistant Relay location: %s, %sactive\n"), GA_CONF_FILE_NAME, url.c_str(), active ? "" : "in");
+  return true;
 }
 
 // Save configuration to disk
-void GoogleAssistant::save(const String& new_url, bool new_active) {
+bool GoogleAssistant::save(const String& new_url, bool new_active) {
   url = new_url;
   active = new_active;
   auto file = System::fs.open(GA_CONF_FILE_NAME, "w");
   if (!file) {
     System::log->printf(TIMED("Error saving Google configuration\n"));
-    return;
+    return false;
   }
   file.println(url);
   file.println(active ? 1 : 0);
   file.close();
+  return true;
 }
 
 // Activate service
@@ -66,7 +71,7 @@ void GoogleAssistant::activate() {
 }
 
 // Deactivate service
-void GoogleAssistant::deactiave() {
+void GoogleAssistant::deactivate() {
   active = false;
 }
 
@@ -76,16 +81,11 @@ bool GoogleAssistant::isActive() const {
 }
 
 // Broadcast message
-bool GoogleAssistant::broadcast(__attribute__ ((unused)) const String& msg) {
-  if (!active)
+bool GoogleAssistant::broadcast(const String& msg, const bool force) {
+
+  if (!url.length() || (!active && !force))
     return false;
 
-#ifdef DS_DEVBOARD
-  const int ret = HTTP_CODE_OK;    // Skip assistant announcements
-  System::log->printf(TIMED("TEST: Emulating broadcast to Google Assistant...\n"));
-#else
-  if (!url.length())
-    return false;
   http.begin(client, url);
   http.addHeader(F("Content-Type"), F("application/json"));
   String payload;
@@ -96,9 +96,23 @@ bool GoogleAssistant::broadcast(__attribute__ ((unused)) const String& msg) {
   const auto ret = http.POST(payload);
   System::log->println(ret ? F("OK") : F("failed"));
   http.end();
-#endif // DS_DEVBOARD
 
   return ret == HTTP_CODE_OK;
+}
+
+// Send test message
+bool GoogleAssistant::sendTest(const String& new_url) {
+
+  if (!new_url.length())
+    return false;
+
+  const auto prev_url = url;
+  url = new_url;
+
+  const auto ret = broadcast(F("Hi there! This is a test message from the mailbox app."), true);
+
+  url = prev_url;
+  return ret;
 }
 
 #endif // DS_SUPPORT_GOOGLE_ASSISTANT && !DS_MAILBOX_REMOTE

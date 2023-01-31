@@ -22,12 +22,13 @@ namespace ds {
       const String& getURL() const;        // Return assistant relay location
       void setURL(const String& /* new_url */);     // Set assistant relay location
       void begin();                        // Begin operations
-      void load();                         // Load configuration from disk
-      void save(const String& /* new_url */, bool /* new_active */); // Save configuration to disk
+      bool load();                         // Load configuration from disk
+      bool save(const String& /* new_url */, bool /* new_active */); // Save configuration to disk
       void activate();                     // Activate service
-      void deactiave();                    // Deactivate service
+      void deactivate();                   // Deactivate service
       bool isActive() const;               // Return true if service is active
-      bool broadcast(const String& /* msg */);      // Broadcast message
+      bool broadcast(const String& /* msg */, const bool force = false); // Broadcast message
+      bool sendTest(const String& /* new_url */); // Send test message
   };
 
 } // namespace ds

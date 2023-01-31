@@ -16,32 +16,146 @@ using namespace ds;
 // Server data providers
 extern MailBoxManager mailbox_manager;     // Mailbox manager instance
 
-// Add your Telegram credentials here
-const char *Telegram::token      PROGMEM = "nnnnnnnnnn:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";  // Bot token
-const char *Telegram::chat_id    PROGMEM =
-#ifdef DS_DEVBOARD
-                                           "nnnnnnnnn"                                        // ID of private chat with developer
-#else
-                                          "-nnnnnnnnn"                                        // ID of group chat where bot reports
-#endif // DS_DEVBOARD
-;
+// Telegram poll interval
 static const unsigned int POLL_INTERVAL = 10;  // s
 
+// Settings file
+static const char *TG_CONF_FILE_NAME PROGMEM = "/telegram.cfg";
+
 // Constructor
-Telegram::Telegram(): bot(token, client), timer((char *)nullptr, POLL_INTERVAL, std::bind(&Telegram::update, this)),
-    boot_reported(false), bounce_reported(false), update_in_progress(false) {
+Telegram::Telegram(): bot(token, client), timer((char *)nullptr, POLL_INTERVAL, std::bind(&Telegram::update, this), false),
+    active(false), boot_reported(false), bounce_reported(false), update_in_progress(false) {
   client.setInsecure();    // See https://github.com/witnessmenow/Universal-Arduino-Telegram-Bot/issues/118
+}
+
+// Return bot token
+const String& Telegram::getToken() const {
+  return token;
+}
+
+// Set bot token
+void Telegram::setToken(const String& new_token) {
+  token = new_token;
+  token.trim();
+  bot.updateToken(token);
+}
+
+// Return chat ID
+const String& Telegram::getChatID() const {
+  return chat_id;
+}
+
+// Set chat ID
+void Telegram::setChatID(const String& new_chat_id) {
+  chat_id = new_chat_id;
+  chat_id.trim();
+}
+
+// Begin operations
+void Telegram::begin() {
+
+  // Load configuration if present
+  if (load())
+    System::log->printf(TIMED("%s: Telegram configured, %sactive\n"), TG_CONF_FILE_NAME, active ? "" : "in");
+}
+
+// Load configuration from disk
+bool Telegram::load() {
+  auto file = System::fs.open(TG_CONF_FILE_NAME, "r");
+  if (!file)
+    return false;
+  setToken(file.readStringUntil('\n'));
+  setChatID(file.readStringUntil('\n'));
+  const auto is_active = file.parseInt();
+  file.close();
+  if (is_active)
+    activate();
+  else
+    deactivate();
+  return true;
+}
+
+// Save configuration to disk
+bool Telegram::save(const String& new_token, const String& new_chat_id, bool new_active) {
+  token = new_token;
+  chat_id = new_chat_id;
+  if (new_active)
+    activate();
+  else
+    deactivate();
+  auto file = System::fs.open(TG_CONF_FILE_NAME, "w");
+  if (!file) {
+    System::log->printf(TIMED("Error saving Telegram configuration\n"));
+    return false;
+  }
+  file.println(token);
+  file.println(chat_id);
+  file.println(active ? 1 : 0);
+  file.close();
+  return true;
+}
+
+// Activate service
+void Telegram::activate() {
+  if (!active) {
+    active = true;
+    timer.arm();
+  }
+}
+
+// Deactivate service
+void Telegram::deactivate() {
+  if (active) {
+    timer.disarm();
+    active = false;
+    boot_reported = false;
+    bounce_reported = false;
+    update_in_progress = false;
+  }
+}
+
+// Return true if service is active
+bool Telegram::isActive() const {
+  return active;
 }
 
 // Send message with logging
 bool Telegram::sendMessage(const String& chat_id, const String& to, const String& cmd, const String& msg) {
   if (System::networkIsConnected()) {
-    System::log->printf(TIMED("Serving Telegram command \""));
-    System::log->print(cmd);
-    System::log->print(F("\" to "));
-    System::log->print(to);
-    System::log->println(chat_id[0] == '-' ? F(" in public") : F(" in private"));
-    return bot.sendMessage(chat_id, msg, F("Markdown"));
+    if (token.length() && chat_id.length()) {
+      System::log->printf(TIMED("Serving Telegram command \""));
+      System::log->print(cmd);
+      System::log->print(F("\" to "));
+      System::log->print(to);
+      System::log->println(chat_id[0] == '-' ? F(" in public") : F(" in private"));
+      return bot.sendMessage(chat_id, msg, F("Markdown"));
+    } else {
+      System::log->printf(TIMED("Telegram message not sent: invalid credentials\n"));
+      return false;
+    }
+  } else {
+    System::log->printf(TIMED("Telegram message not sent: network is down\n"));
+    return false;
+  }
+}
+
+// Send test message
+bool Telegram::sendTest(const String& new_token, const String& new_chat_id) {
+
+  // Do not check "active" flag here, as this method is called intentionally for testing
+
+  if (System::networkIsConnected()) {
+
+    if (token != new_token)
+      bot.updateToken(new_token);
+
+    // Do not timestamp test message
+    const auto ret = bot.sendMessage(new_chat_id, F("Hi there! This is a test message from the mailbox app."));
+
+    if (token != new_token)
+      bot.updateToken(token);
+
+    return ret;
   } else {
     System::log->printf(TIMED("Telegram message not sent: network is down\n"));
     return false;
@@ -50,6 +164,9 @@ bool Telegram::sendMessage(const String& chat_id, const String& to, const String
 
 // Send boot notification
 bool Telegram::sendBoot() {
+  if (!active)
+    return false;
+
   if (System::networkIsConnected()) {
 
     // Do not timestamp this, as usually when this is sent, time is not synchronized yet
@@ -62,6 +179,9 @@ bool Telegram::sendBoot() {
 
 // Send low battery notification
 bool Telegram::sendBatteryLow(const VirtualMailBox& mb) {
+  if (!active)
+    return false;
+
   if (System::networkIsConnected()) {
 
     char time_str[7];
@@ -84,6 +204,9 @@ bool Telegram::sendBatteryLow(const VirtualMailBox& mb) {
 
 // Send lost event notification
 bool Telegram::sendLostEvent(uint16_t num) {
+  if (!active)
+    return false;
+
   if (System::networkIsConnected()) {
     if (num) {
       String msg = F("Detected loss of ");
@@ -102,6 +225,9 @@ bool Telegram::sendLostEvent(uint16_t num) {
 
 // Send event notification
 bool Telegram::sendEvent(const VirtualMailBox& mb, uint16_t remote_time) {
+  if (!active)
+    return false;
+
   if (System::networkIsConnected()) {
     auto alarm = mb.getAlarm();
 
@@ -189,7 +315,7 @@ bool Telegram::sendEvent(const VirtualMailBox& mb, uint16_t remote_time) {
 
 // Process incoming commands
 void Telegram::update() {
-  if (!System::networkIsConnected() || update_in_progress)
+  if (!active || !System::networkIsConnected() || update_in_progress)
     return;
 
   update_in_progress = true;

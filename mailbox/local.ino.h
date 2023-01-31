@@ -123,6 +123,9 @@ void setup() {
   receiver.begin();
 
 #ifdef DS_SUPPORT_TELEGRAM
+  // Load Telegram configuration
+  telegram.begin();
+
   // Notify on Telegram about reboot
   telegram.sendBoot();
 #endif // DS_SUPPORT_TELEGRAM
