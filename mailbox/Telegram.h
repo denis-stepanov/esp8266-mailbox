@@ -35,8 +35,8 @@ namespace ds {
       const String& getChatID() const;                // Return chat ID
       void setChatID(const String& /* new_chat_id */);// Set chat ID
       void begin();                                   // Begin operations
-      void load();                                    // Load configuration from disk
-      void save(const String& /* new_token */, const String& /* new_chat_id */, bool /* new_active */); // Save configuration to disk
+      bool load();                                    // Load configuration from disk
+      bool save(const String& /* new_token */, const String& /* new_chat_id */, bool /* new_active */); // Save configuration to disk
       void activate();                                // Activate service
       void deactivate();                              // Deactivate service
       bool isActive() const;                          // Return true if service is active

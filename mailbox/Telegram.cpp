@@ -55,14 +55,15 @@ void Telegram::setChatID(const String& new_chat_id) {
 void Telegram::begin() {
 
   // Load configuration if present
-  load();
+  if (load())
+    System::log->printf(TIMED("%s: Telegram configured, %sactive\n"), TG_CONF_FILE_NAME, active ? "" : "in");
 }
 
 // Load configuration from disk
-void Telegram::load() {
+bool Telegram::load() {
   auto file = System::fs.open(TG_CONF_FILE_NAME, "r");
   if (!file)
-    return;
+    return false;
   setToken(file.readStringUntil('\n'));
   setChatID(file.readStringUntil('\n'));
   const auto is_active = file.parseInt();
@@ -71,11 +72,11 @@ void Telegram::load() {
     activate();
   else
     deactivate();
-  System::log->printf(TIMED("%s: Telegram reconfigured, %sactive\n"), TG_CONF_FILE_NAME, active ? "" : "in");
+  return true;
 }
 
 // Save configuration to disk
-void Telegram::save(const String& new_token, const String& new_chat_id, bool new_active) {
+bool Telegram::save(const String& new_token, const String& new_chat_id, bool new_active) {
   token = new_token;
   chat_id = new_chat_id;
   if (new_active)
@@ -85,12 +86,13 @@ void Telegram::save(const String& new_token, const String& new_chat_id, bool new
   auto file = System::fs.open(TG_CONF_FILE_NAME, "w");
   if (!file) {
     System::log->printf(TIMED("Error saving Telegram configuration\n"));
-    return;
+    return false;
   }
   file.println(token);
   file.println(chat_id);
   file.println(active ? 1 : 0);
   file.close();
+  return true;
 }
 
 // Activate service

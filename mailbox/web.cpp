@@ -293,12 +293,31 @@ static void serveConfSave() {
     if (action == "save") {
 #ifdef DS_SUPPORT_TELEGRAM
       if (t_token_ok && t_chat_id_ok) {
-        telegram.save(t_token, t_chat_id, t_active);
-        String lmsg = F("Telegram ");
-        lmsg += t_active ? F("") : F("de");
-        lmsg += F("activated and reconfigured from ");
-        lmsg += System::web_server.client().remoteIP().toString();
-        System::appLogWriteLn(lmsg, true);
+        const auto t_token_old = telegram.getToken();
+        const auto t_chat_id_old = telegram.getChatID();
+        const auto t_active_old = telegram.isActive();
+        if (t_token != t_token_old || t_chat_id != t_chat_id_old || t_active != t_active_old) {
+          telegram.save(t_token, t_chat_id, t_active);
+
+          String lmsg = F("Telegram ");
+          if (t_active != t_active_old) {
+            lmsg += t_active ? F("") : F("de");
+            lmsg += F("activated");
+          }
+          if (t_token != t_token_old) {
+            if (t_active != t_active_old)
+              lmsg += F("; ");
+            lmsg += F("token updated");
+          }
+          if (t_chat_id != t_chat_id_old) {
+            if (t_active != t_active_old || t_token != t_token_old)
+              lmsg += F("; ");
+            lmsg += F("chat ID updated");
+          }
+          lmsg += F(" from ");
+          lmsg += System::web_server.client().remoteIP().toString();
+          System::appLogWriteLn(lmsg, true);
+        }
       }
 #endif // DS_SUPPORT_TELEGRAM
 #ifdef DS_SUPPORT_GOOGLE_ASSISTANT
