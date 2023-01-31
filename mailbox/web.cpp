@@ -303,17 +303,29 @@ static void serveConfSave() {
 #endif // DS_SUPPORT_TELEGRAM
 #ifdef DS_SUPPORT_GOOGLE_ASSISTANT
       if (g_url_ok) {
-        const String g_url_old = google_assistant.getURL();
-        google_assistant.save(g_url, g_active);
-        String lmsg = F("Google Assistant ");
-        lmsg += g_active ? F("") : F("de");
-        lmsg += F("activated and URL updated from \"");
-        lmsg += g_url_old;
-        lmsg += F("\" to \"");
-        lmsg += g_url;
-        lmsg += F("\" from ");
-        lmsg += System::web_server.client().remoteIP().toString();
-        System::appLogWriteLn(lmsg, true);
+        const auto g_url_old = google_assistant.getURL();
+        const auto g_active_old = google_assistant.isActive();
+        if (g_url != g_url_old || g_active != g_active_old) {
+          google_assistant.save(g_url, g_active);
+
+          String lmsg = F("Google Assistant ");
+          if (g_active != g_active_old) {
+            lmsg += g_active ? F("") : F("de");
+            lmsg += F("activated");
+          }
+          if (g_url != g_url_old) {
+            if (g_active != g_active_old)
+              lmsg += F(" and ");
+            lmsg += F("URL updated from \"");
+            lmsg += g_url_old;
+            lmsg += F("\" to \"");
+            lmsg += g_url;
+            lmsg += F("\"");
+          }
+          lmsg += F(" from ");
+          lmsg += System::web_server.client().remoteIP().toString();
+          System::appLogWriteLn(lmsg, true);
+        }
       }
 #endif // DS_SUPPORT_GOOGLE_ASSISTANT
       pushHeader(F("Configuration Saved"), true);

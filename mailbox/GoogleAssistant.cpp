@@ -33,32 +33,36 @@ void GoogleAssistant::setURL(const String& new_url) {
 void GoogleAssistant::begin() {
 
   // Load configuration if present
-  load();
+  if (load())
+    System::log->printf(TIMED("%s: Google Assistant Relay location: %s, %sactive\n"), GA_CONF_FILE_NAME, url.c_str(), active ? "" : "in");
 }
 
 // Load configuration from disk
-void GoogleAssistant::load() {
+bool GoogleAssistant::load() {
   auto file = System::fs.open(GA_CONF_FILE_NAME, "r");
-  if (!file)
-    return;
+  if (!file) {
+    System::log->printf(TIMED("No saved Google configuration found\n"));
+    return false;
+  }
   setURL(file.readStringUntil('\n'));
   active = file.parseInt();
   file.close();
-  System::log->printf(TIMED("%s: Google Assistant Relay location: %s, %sactive\n"), GA_CONF_FILE_NAME, url.c_str(), active ? "" : "in");
+  return true;
 }
 
 // Save configuration to disk
-void GoogleAssistant::save(const String& new_url, bool new_active) {
+bool GoogleAssistant::save(const String& new_url, bool new_active) {
   url = new_url;
   active = new_active;
   auto file = System::fs.open(GA_CONF_FILE_NAME, "w");
   if (!file) {
     System::log->printf(TIMED("Error saving Google configuration\n"));
-    return;
+    return false;
   }
   file.println(url);
   file.println(active ? 1 : 0);
   file.close();
+  return true;
 }
 
 // Activate service
