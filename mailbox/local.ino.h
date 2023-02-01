@@ -9,12 +9,10 @@
 
 #include "Receiver.h"         // Message receiver
 #include "MailBoxManager.h"   // Mailbox manager
+#include "GoogleAssistant.h"  // Google interface
 #ifdef DS_SUPPORT_TELEGRAM
 #include "Telegram.h"         // Telegram interface
 #endif // DS_SUPPORT_TELEGRAM
-#ifdef DS_SUPPORT_GOOGLE_ASSISTANT
-#include "GoogleAssistant.h"  // Google interface
-#endif // DS_SUPPORT_GOOGLE_ASSISTANT
 
 using namespace ace_button;
 using namespace ds;
@@ -47,12 +45,10 @@ const char *System::hostname PROGMEM = "Mailbox" // <hostname>.local in the loca
 // Global objects
 static Receiver receiver;                        // RF receiver
 MailBoxManager mailbox_manager;                  // Mailbox manager
+GoogleAssistant google_assistant;                // Google interface
 #ifdef DS_SUPPORT_TELEGRAM
 Telegram telegram;                               // Telegram interface
 #endif // DS_SUPPORT_TELEGRAM
-#ifdef DS_SUPPORT_GOOGLE_ASSISTANT
-GoogleAssistant google_assistant;                // Google interface
-#endif // DS_SUPPORT_GOOGLE_ASSISTANT
 static auto check_degraded = false;              // Indicates when it is safe to run mailbox status check on boot
 #ifdef DS_DEVBOARD
 extern bool recv_message_emulated;               // Flag to emulate message arrival
@@ -122,6 +118,9 @@ void setup() {
   // Initialize RF receiver
   receiver.begin();
 
+  // Load Google configuration
+  google_assistant.begin();
+
 #ifdef DS_SUPPORT_TELEGRAM
   // Load Telegram configuration
   telegram.begin();
@@ -129,11 +128,6 @@ void setup() {
   // Notify on Telegram about reboot
   telegram.sendBoot();
 #endif // DS_SUPPORT_TELEGRAM
-
-#ifdef DS_SUPPORT_GOOGLE_ASSISTANT
-  // Load Google configuration
-  google_assistant.begin();
-#endif // DS_SUPPORT_GOOGLE_ASSISTANT
 }
 
 void loop() {
