@@ -1,7 +1,7 @@
 /* DS mailbox automation
  * * Local or remote module selector
  * * * System capabilities
- * (c) DNS 2020-2021
+ * (c) DNS 2020-2023
  */
 
 #ifndef _DS_SYSTEM_H_
@@ -16,9 +16,6 @@
 
 //// Uncomment if you need Telegram interface
 //#define DS_SUPPORT_TELEGRAM
-
-//// Uncomment if you need Google Assistant notifications
-//#define DS_SUPPORT_GOOGLE_ASSISTANT
 
 #ifdef DS_MAILBOX_REMOTE
 

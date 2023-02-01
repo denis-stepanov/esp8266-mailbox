@@ -9,23 +9,19 @@
 #ifndef DS_MAILBOX_REMOTE
 
 #include "MailBoxManager.h"         // Mailbox manager
+#include "GoogleAssistant.h"        // Google interface
 #ifdef DS_SUPPORT_TELEGRAM
 #include "Telegram.h"               // Telegram interface
 #endif // DS_SUPPORT_TELEGRAM
-#ifdef DS_SUPPORT_GOOGLE_ASSISTANT
-#include "GoogleAssistant.h"        // Google interface
-#endif // DS_SUPPORT_GOOGLE_ASSISTANT
 
 using namespace ds;
 
 // Server data providers
 extern MailBoxManager mailbox_manager;     // Mailbox manager instance
+extern GoogleAssistant google_assistant;   // Google interface
 #ifdef DS_SUPPORT_TELEGRAM
 extern Telegram telegram;                  // Telegram interface
 #endif // DS_SUPPORT_TELEGRAM
-#ifdef DS_SUPPORT_GOOGLE_ASSISTANT
-extern GoogleAssistant google_assistant;   // Google interface
-#endif // DS_SUPPORT_GOOGLE_ASSISTANT
 
 // Initialize page buffer with page header
 static void pushHeader(const String& title, bool redirect = false) {
@@ -194,6 +190,19 @@ static void serveConf() {
   String &page = System::web_page;
   page += F("<form action=\"/confSave\">\n");
 
+  page += F(
+    "  <p>\n"
+    "    <input name=\"g_active\" type=\"checkbox\"");
+  if (google_assistant.isActive())
+    page += F(" checked=\"checked\"");
+  page += F("/> Google Assistant:<br/>\n"
+    "    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label for=\"g_url\">Relay URL (<i>http://IP:PORT/assistant</i>): </label>\n"
+    "    <input type=\"text\" size=\"40\" id=\"g_url\" name=\"g_url\" value=\"");
+  page += google_assistant.getURL();
+  page += F("\"/>\n"
+    "    <button type=\"submit\" name=\"action\" value=\"test_google\">Test</button>\n"
+    "  </p>\n");
+
 #ifdef DS_SUPPORT_TELEGRAM
   page += F(
     "  <p>\n"
@@ -213,27 +222,7 @@ static void serveConf() {
     "  </p>\n");
 #endif // DS_SUPPORT_TELEGRAM
 
-#ifdef DS_SUPPORT_GOOGLE_ASSISTANT
-  page += F(
-    "  <p>\n"
-    "    <input name=\"g_active\" type=\"checkbox\"");
-  if (google_assistant.isActive())
-    page += F(" checked=\"checked\"");
-  page += F("/> Google Assistant:<br/>\n"
-    "    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label for=\"g_url\">Relay URL (<i>http://IP:PORT/assistant</i>): </label>\n"
-    "    <input type=\"text\" size=\"40\" id=\"g_url\" name=\"g_url\" value=\"");
-  page += google_assistant.getURL();
-  page += F("\"/>\n"
-    "    <button type=\"submit\" name=\"action\" value=\"test_google\">Test</button>\n"
-    "  </p>\n");
-#endif // DS_SUPPORT_GOOGLE_ASSISTANT
-
-#if defined (DS_SUPPORT_TELEGRAM) || defined(DS_SUPPORT_GOOGLE_ASSISTANT)
   page += F("  <p><button type=\"submit\" name=\"action\" value=\"save\">Save</button></p>");
-#else
-  page += F("  <p>No global settings defined</p>");
-#endif // DS_SUPPORT_TELEGRAM || DS_SUPPORT_GOOGLE_ASSISTANT
-
   page += F("</form>\n");
   pushFooter();
   System::sendWebPage();
@@ -245,6 +234,10 @@ static void serveConfSave() {
   String action;
   bool action_ok = false;
 
+  String g_url;
+  auto g_url_ok = false;
+  auto g_active = false;
+
 #ifdef DS_SUPPORT_TELEGRAM
   String t_token;
   String t_chat_id;
@@ -253,18 +246,18 @@ static void serveConfSave() {
   auto t_active = false;
 #endif // DS_SUPPORT_TELEGRAM
 
-#ifdef DS_SUPPORT_GOOGLE_ASSISTANT
-  String g_url;
-  auto g_url_ok = false;
-  auto g_active = false;
-#endif // DS_SUPPORT_GOOGLE_ASSISTANT
-
   for (unsigned int i = 0; i < (unsigned int)System::web_server.args(); i++) {
     String arg_name = System::web_server.argName(i);
     if (arg_name == "action") {
       action = System::web_server.arg(i);
       action_ok = true;
-    }
+    } else
+    if (arg_name == "g_url") {
+      g_url = System::web_server.arg(i);
+      g_url_ok = true;
+    } else
+    if (arg_name == "g_active")
+      g_active = true;
 #ifdef DS_SUPPORT_TELEGRAM
     else
     if (arg_name == "t_token") {
@@ -278,19 +271,36 @@ static void serveConfSave() {
     if (arg_name == "t_active")
       t_active = true;
 #endif // DS_SUPPORT_TELEGRAM
-#ifdef DS_SUPPORT_GOOGLE_ASSISTANT
-    else
-    if (arg_name == "g_url") {
-      g_url = System::web_server.arg(i);
-      g_url_ok = true;
-    } else
-    if (arg_name == "g_active")
-      g_active = true;
-#endif // DS_SUPPORT_GOOGLE_ASSISTANT
   }
 
   if (action_ok) {
     if (action == "save") {
+      if (g_url_ok) {
+        const auto g_url_old = google_assistant.getURL();
+        const auto g_active_old = google_assistant.isActive();
+        if (g_url != g_url_old || g_active != g_active_old) {
+          google_assistant.save(g_url, g_active);
+
+          String lmsg = F("Google Assistant ");
+          if (g_active != g_active_old) {
+            lmsg += g_active ? F("") : F("de");
+            lmsg += F("activated");
+          }
+          if (g_url != g_url_old) {
+            if (g_active != g_active_old)
+              lmsg += F(" and ");
+            lmsg += F("URL updated from \"");
+            lmsg += g_url_old;
+            lmsg += F("\" to \"");
+            lmsg += g_url;
+            lmsg += F("\"");
+          }
+          lmsg += F(" from ");
+          lmsg += System::web_server.client().remoteIP().toString();
+          System::appLogWriteLn(lmsg, true);
+        }
+      }
+
 #ifdef DS_SUPPORT_TELEGRAM
       if (t_token_ok && t_chat_id_ok) {
         const auto t_token_old = telegram.getToken();
@@ -320,34 +330,23 @@ static void serveConfSave() {
         }
       }
 #endif // DS_SUPPORT_TELEGRAM
-#ifdef DS_SUPPORT_GOOGLE_ASSISTANT
-      if (g_url_ok) {
-        const auto g_url_old = google_assistant.getURL();
-        const auto g_active_old = google_assistant.isActive();
-        if (g_url != g_url_old || g_active != g_active_old) {
-          google_assistant.save(g_url, g_active);
 
-          String lmsg = F("Google Assistant ");
-          if (g_active != g_active_old) {
-            lmsg += g_active ? F("") : F("de");
-            lmsg += F("activated");
-          }
-          if (g_url != g_url_old) {
-            if (g_active != g_active_old)
-              lmsg += F(" and ");
-            lmsg += F("URL updated from \"");
-            lmsg += g_url_old;
-            lmsg += F("\" to \"");
-            lmsg += g_url;
-            lmsg += F("\"");
-          }
-          lmsg += F(" from ");
-          lmsg += System::web_server.client().remoteIP().toString();
-          System::appLogWriteLn(lmsg, true);
-        }
-      }
-#endif // DS_SUPPORT_GOOGLE_ASSISTANT
       pushHeader(F("Configuration Saved"), true);
+    }
+    else
+    if (action == "test_google") {
+      if (g_url_ok && g_url.length()) {
+        if (google_assistant.sendTest(g_url)) {
+          System::log->printf(TIMED("Google Assistant test message sent from %s\n"), System::web_server.client().remoteIP().toString().c_str());
+          pushHeader(F("Test Message Sent"), true);
+          if (google_assistant.getURL() != g_url)
+            System::web_page += F("<p>If OK, do not forget to save your new settings.</p>");
+        } else {
+          System::log->printf(TIMED("Google Assistant test message error\n"));
+          pushHeader(F("Message Sending Error"), true);
+        }
+      } else
+        pushHeader(F("Invalid Parameters"), true);
     }
 #ifdef DS_SUPPORT_TELEGRAM
     else
@@ -365,24 +364,7 @@ static void serveConfSave() {
       } else
         pushHeader(F("Invalid Parameters"), true);
     }
-#endif // DS_SUPPORT_GOOGLE_ASSISTANT
-#ifdef DS_SUPPORT_GOOGLE_ASSISTANT
-    else
-    if (action == "test_google") {
-      if (g_url_ok && g_url.length()) {
-        if (google_assistant.sendTest(g_url)) {
-          System::log->printf(TIMED("Google Assistant test message sent from %s\n"), System::web_server.client().remoteIP().toString().c_str());
-          pushHeader(F("Test Message Sent"), true);
-          if (google_assistant.getURL() != g_url)
-            System::web_page += F("<p>If OK, do not forget to save your new settings.</p>");
-        } else {
-          System::log->printf(TIMED("Google Assistant test message error\n"));
-          pushHeader(F("Message Sending Error"), true);
-        }
-      } else
-        pushHeader(F("Invalid Parameters"), true);
-    }
-#endif // DS_SUPPORT_GOOGLE_ASSISTANT
+#endif // DS_SUPPORT_TELEGRAM
     else
       pushHeader(F("Unknown action"), true);
   } else

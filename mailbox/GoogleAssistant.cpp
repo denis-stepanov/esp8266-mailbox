@@ -6,7 +6,7 @@
 
 #include "MySystem.h"               // Syslog
 
-#if defined(DS_SUPPORT_GOOGLE_ASSISTANT) && !defined(DS_MAILBOX_REMOTE)
+#ifndef DS_MAILBOX_REMOTE
 
 #include "GoogleAssistant.h"
 
@@ -115,4 +115,4 @@ bool GoogleAssistant::sendTest(const String& new_url) {
   return ret;
 }
 
-#endif // DS_SUPPORT_GOOGLE_ASSISTANT && !DS_MAILBOX_REMOTE
+#endif // !DS_MAILBOX_REMOTE

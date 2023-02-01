@@ -10,22 +10,18 @@
 
 #include "VirtualMailBox.h"
 #include "MailBoxManager.h"   // Mailbox manager
+#include "GoogleAssistant.h"  // Google interface
 #ifdef DS_SUPPORT_TELEGRAM
 #include "Telegram.h"         // Telegram interface
 #endif // DS_SUPPORT_TELEGRAM
-#ifdef DS_SUPPORT_GOOGLE_ASSISTANT
-#include "GoogleAssistant.h"  // Google interface
-#endif // DS_SUPPORT_GOOGLE_ASSISTANT
 
 using namespace ds;
 
 extern MailBoxManager mailbox_manager;      // Mailbox manager instance
+extern GoogleAssistant google_assistant;    // Google interface
 #ifdef DS_SUPPORT_TELEGRAM
 extern Telegram telegram;                   // Telegram interface
 #endif // DS_SUPPORT_TELEGRAM
-#ifdef DS_SUPPORT_GOOGLE_ASSISTANT
-extern GoogleAssistant google_assistant;    // Google interface
-#endif // DS_SUPPORT_GOOGLE_ASSISTANT
 
 static const char *FILE_PREFIX PROGMEM = "/mailbox"; // Configuration file prefix
 static const char *FILE_EXT PROGMEM = ".cfg";        // Configuration file extension
@@ -368,7 +364,7 @@ VirtualMailBox& VirtualMailBox::operator=(const MailBoxMessage& msg) {
   // Send event notification to cloud
   telegram.sendEvent(*this, remote_time);
 #endif // DS_SUPPORT_TELEGRAM
-#ifdef DS_SUPPORT_GOOGLE_ASSISTANT
+
   if (g_opening_reported)
     g_opening_reported = false;
   else
@@ -384,7 +380,6 @@ VirtualMailBox& VirtualMailBox::operator=(const MailBoxMessage& msg) {
         g_opening_reported = google_assistant.broadcast(gmsg) && online;
       }
     }
-#endif // DS_SUPPORT_GOOGLE_ASSISTANT
 
 #ifdef DS_SUPPORT_TELEGRAM
   // Each mailbox event is a pair of messages with numbers odd (start) + even (finish)
@@ -422,10 +417,8 @@ void VirtualMailBox::timeout() {
     mailbox_manager.updateAlarm();
   }
 
-#ifdef DS_SUPPORT_GOOGLE_ASSISTANT
   // Prepare for the next event
   g_opening_reported = false;
-#endif // DS_SUPPORT_GOOGLE_ASSISTANT
 }
 
 // HTML printout helper
