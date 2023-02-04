@@ -172,15 +172,15 @@ void MailBoxManager::printHTML(String& buf) {
   buf += VirtualMailBox::getAlarmIcon(alarm);
   buf += F("</span>\n<p>Global status:&nbsp;&nbsp;");
   buf += VirtualMailBox::getAlarmStr(alarm, true);
-  buf += F("&nbsp;&nbsp;<input type=\"submit\" value=\"Acknowledge\"");
+  buf += F("&nbsp;&nbsp;<input type=\"submit\" value=\"Acknowledge All\"");
   if (alarm == ALARM_NONE)
     buf += F(" disabled=\"true\"");
   buf += F("/></p>\n</form>\n"
     "<table border=\"1\" cellpadding=\"3\" cellspacing=\"0\" style=\"font-family: monospace; border-collapse: collapse;\">\n"
     "<tr><th title=\"ID\">&#x1f4ec;</th><th title=\"Label\">&#x1f3f7;</th><th title=\"Status\">&#x1f6a9;</th>"
-    "<th title=\"Battery\">&#x1f50b;</th><th title=\"Radio Reliability\">&#x1f4f6;</th><th title=\"Last Contact\">&#x1f557;</th></tr>\n");
+    "<th title=\"Battery\">&#x1f50b;</th><th title=\"Radio Reliability\">&#x1f4f6;</th><th title=\"Last Contact\">&#x1f557;</th><th>&#x2705;</th></tr>\n");
   if (mailboxes.empty())
-    buf += F("<tr><td colspan=\"6\" style=\"text-align: center\">- No mailboxes have reported so far -</tr>\n");
+    buf += F("<tr><td colspan=\"7\" style=\"text-align: center\">- No mailboxes have reported so far -</tr>\n");
   else
     for (auto mb : mailboxes)
       buf << *mb;
