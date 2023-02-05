@@ -147,19 +147,31 @@ void MailBoxManager::updateAlarm() {
   }
 }
 
-// Acknowledge global alarm. Returns the alarm acknowledged
-mailbox_alarm MailBoxManager::acknowledgeAlarm(const String &via) {
-  const auto alarm_ack = alarm;
-  if (alarm != ALARM_NONE) {
-    System::led.Off();
+// Acknowledge alarm. Returns the alarm acknowledged
+mailbox_alarm MailBoxManager::acknowledgeAlarm(const String &via, const uint8_t id) {
+  auto mailbox = getMailBox(id);
+  const auto alarm_ack = mailbox ? mailbox->getAlarm() : alarm;
+  if (alarm_ack != ALARM_NONE) {
+    if (mailbox) {
+      // FIXME LED operation
+      // FIXME global alarm recalculation
+      mailbox->resetAlarm();
+    } else {
+      System::led.Off();
+      alarm = ALARM_NONE;
+      for (auto mb : mailboxes)
+        mb->resetAlarm();
+    }
     String msg = F("Alarm \"");
-    msg += VirtualMailBox::getAlarmStr(alarm);
-    msg += F("\" acknowledged via ");
+    msg += VirtualMailBox::getAlarmStr(alarm_ack);
+    msg += F("\"");
+    if (mailbox) {
+      msg += F(" of mailbox ");
+      msg += id;
+    }
+    msg += F(" acknowledged via ");
     msg += via;
     System::appLogWriteLn(msg, true);
-    alarm = ALARM_NONE;
-    for (auto mb : mailboxes)
-      mb->resetAlarm();
   }
   return alarm_ack;
 }

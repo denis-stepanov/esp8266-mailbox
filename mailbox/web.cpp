@@ -119,7 +119,7 @@ static void serveSave() {
   if (System::web_server.args() == 3) {
     uint8_t id = 0;
     String label, action;
-    bool id_ok = false, label_ok = false, action_ok = false;
+    auto id_ok = false, label_ok = false, action_ok = false;
     for (unsigned int i = 0; i < (unsigned int)System::web_server.args(); i++) {
       String arg_name = System::web_server.argName(i);
       if (arg_name == "id") {
@@ -176,9 +176,17 @@ static void serveSave() {
 
 // Acknowledge global alarm
 static void serveAcknowledge() {
+  uint8_t id = 0;
   String via = F("web from ");
   via += System::web_server.client().remoteIP().toString();
-  mailbox_manager.acknowledgeAlarm(via);
+
+  for (unsigned int i = 0; i < (unsigned int)System::web_server.args(); i++) {
+    String arg_name = System::web_server.argName(i);
+    if (arg_name == "id")
+      id = System::web_server.arg(i).toInt();
+  }
+
+  mailbox_manager.acknowledgeAlarm(via, id);
   pushHeader(F("Alarm Acknowledged"), true);
   pushFooter();
   System::sendWebPage();
@@ -232,7 +240,7 @@ static void serveConf() {
 static void serveConfSave() {
 
   String action;
-  bool action_ok = false;
+  auto action_ok = false;
 
   String g_url;
   auto g_url_ok = false;

@@ -29,7 +29,7 @@ namespace ds {
       bool process(const MailBoxMessage& /* msg */);  // Update mailbox from received message; create if not found
       bool deleteMailBox(const uint8_t /* mb_id */);  // Delete mailbox with a given ID
       void updateAlarm();                             // Update global alarm and its display with the latest status from mailboxes
-      mailbox_alarm acknowledgeAlarm(const String& /* via */); // Acknowledge global alarm. Returns the alarm acknowledged
+      mailbox_alarm acknowledgeAlarm(const String& /* via */, const uint8_t id = 0); // Acknowledge alarm. Returns the alarm acknowledged
       void printHTML(String& /* buf */);              // Print mailboxes table in HTML
       void printText(String& /* buf */);              // Print mailboxes table in text
   };
