@@ -152,16 +152,12 @@ mailbox_alarm MailBoxManager::acknowledgeAlarm(const String &via, const uint8_t 
   auto mailbox = getMailBox(id);
   const auto alarm_ack = mailbox ? mailbox->getAlarm() : alarm;
   if (alarm_ack != ALARM_NONE) {
-    if (mailbox) {
-      // FIXME LED operation
-      // FIXME global alarm recalculation
+    if (mailbox)
       mailbox->resetAlarm();
-    } else {
-      System::led.Off();
-      alarm = ALARM_NONE;
+    else
       for (auto mb : mailboxes)
         mb->resetAlarm();
-    }
+    updateAlarm();
     String msg = F("Alarm \"");
     msg += VirtualMailBox::getAlarmStr(alarm_ack);
     msg += F("\"");
