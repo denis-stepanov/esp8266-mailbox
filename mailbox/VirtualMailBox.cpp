@@ -244,6 +244,15 @@ void VirtualMailBox::printText(String& buf) const {
   buf += "\n";
 }
 
+#ifdef DS_SUPPORT_TELEGRAM
+// Print Telegram keyboard for a mailbox
+void VirtualMailBox::printTelegramKeyboard(String& buf) const {
+  buf += F("\"/ack ");
+  buf += id;
+  buf += F("\"");
+}
+#endif // DS_SUPPORT_TELEGRAM
+
 // Return configuration file name (static version)
 String VirtualMailBox::getConfFileName(const uint8_t id) {
   String file_name = FILE_PREFIX;

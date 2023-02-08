@@ -306,7 +306,10 @@ bool Telegram::sendEvent(const VirtualMailBox& mb, uint16_t remote_time) {
         break;
     }
 
-    return bot.sendMessageWithReplyKeyboard(chat_id, output, "", F("[[\"/ack\",\"/status\"],[\"/ack +status\"]]"), true);
+    String keyboard(F("["));
+    mailbox_manager.printTelegramKeyboard(keyboard); // Add buttons for individual mailboxes
+    keyboard += F(",[\"/ack\",\"/status\"],[\"/ack +status\"]]"); // Add global buttons
+    return bot.sendMessageWithReplyKeyboard(chat_id, output, "", keyboard, true);
   } else {
     System::log->printf(TIMED("Telegram message not sent: network is down\n"));
     return false;

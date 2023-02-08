@@ -32,6 +32,9 @@ namespace ds {
       mailbox_alarm acknowledgeAlarm(const String& /* via */, const uint8_t id = 0); // Acknowledge alarm. Returns the alarm acknowledged
       void printHTML(String& /* buf */);              // Print mailboxes table in HTML
       void printText(String& /* buf */);              // Print mailboxes table in text
+#ifdef DS_SUPPORT_TELEGRAM
+      void printTelegramKeyboard(String& /* buf */) const; // Print Telegram keyboard for mailboxes
+#endif // DS_SUPPORT_TELEGRAM
   };
 
 } // namespace ds

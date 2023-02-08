@@ -211,4 +211,26 @@ String& operator<<(String& html_buf, MailBoxManager& mbm) {
   return html_buf;
 }
 
+#ifdef DS_SUPPORT_TELEGRAM
+// Print Telegram keyboard for mailboxes
+void MailBoxManager::printTelegramKeyboard(String& buf) const {
+  const uint8_t NUM_MAILBOXES_IN_ROW = 3;     // Max number of mailboxes in a row
+  uint8_t n = 0;
+  for (auto mb : mailboxes) {
+    if (n % NUM_MAILBOXES_IN_ROW)
+      buf += F(",");                          // Column separator
+    if (!(n % NUM_MAILBOXES_IN_ROW) && n)
+      buf += F("]");                          // Row separator
+    if (!(n % NUM_MAILBOXES_IN_ROW) && n)
+      buf += F(",");
+    if (!(n++ % NUM_MAILBOXES_IN_ROW))
+      buf += F("[");
+    mb->printTelegramKeyboard(buf);
+  }
+  if (n % NUM_MAILBOXES_IN_ROW)               // Incomplete row
+    buf += F("]");                            // Row separator
+}
+#endif // DS_SUPPORT_TELEGRAM
+
+
 #endif // !DS_MAILBOX_REMOTE
