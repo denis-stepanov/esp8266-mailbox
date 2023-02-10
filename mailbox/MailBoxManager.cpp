@@ -219,18 +219,18 @@ void MailBoxManager::printTelegramKeyboard(String& buf) const {
   for (auto mb : mailboxes) {
     if (n % NUM_MAILBOXES_IN_ROW)
       buf += F(",");                          // Column separator
-    if (!(n % NUM_MAILBOXES_IN_ROW) && n)
-      buf += F("]");                          // Row separator
-    if (!(n % NUM_MAILBOXES_IN_ROW) && n)
-      buf += F(",");
-    if (!(n++ % NUM_MAILBOXES_IN_ROW))
+    else {
+      if (n)
+        buf += F(",");                        // Row separator
       buf += F("[");
+    }
     mb->printTelegramKeyboard(buf);
+    if (!(++n % NUM_MAILBOXES_IN_ROW))
+      buf += F("]");
   }
   if (n % NUM_MAILBOXES_IN_ROW)               // Incomplete row
-    buf += F("]");                            // Row separator
+    buf += F("]");
 }
 #endif // DS_SUPPORT_TELEGRAM
-
 
 #endif // !DS_MAILBOX_REMOTE
