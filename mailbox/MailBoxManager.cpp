@@ -148,8 +148,8 @@ void MailBoxManager::updateAlarm() {
 }
 
 // Acknowledge alarm. Returns the alarm acknowledged
-mailbox_alarm MailBoxManager::acknowledgeAlarm(const String &via, const uint8_t id) {
-  auto mailbox = getMailBox(id);
+mailbox_alarm MailBoxManager::acknowledgeAlarm(const String &via, const uint8_t mb_id) {
+  auto mailbox = getMailBox(mb_id);
   const auto alarm_ack = mailbox ? mailbox->getAlarm() : alarm;
   if (alarm_ack != ALARM_NONE) {
     if (mailbox)
@@ -163,7 +163,7 @@ mailbox_alarm MailBoxManager::acknowledgeAlarm(const String &via, const uint8_t 
     msg += F("\"");
     if (mailbox) {
       msg += F(" of mailbox ");
-      msg += id;
+      msg += mb_id;
     }
     msg += F(" acknowledged via ");
     msg += via;
@@ -197,12 +197,13 @@ void MailBoxManager::printHTML(String& buf) {
 
 // Print mailboxes table in text
 //// This method should have been const, but LinkedList is not sufficiently well written for that
-void MailBoxManager::printText(String& buf) {
+void MailBoxManager::printText(String& buf, const uint8_t mb_id) {
   if (mailboxes.empty())
     buf += F("No mailboxes have reported so far");
   else
     for (auto mb : mailboxes)
-      mb->printText(buf);
+      if (!mb_id || *mb == mb_id)
+        mb->printText(buf);
 }
 
 // HTML printout helper

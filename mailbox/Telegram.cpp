@@ -330,7 +330,8 @@ void Telegram::update() {
     if (input.text.startsWith("/ack")) {
       String via = F("Telegram by ");
       via += input.from_name;
-      const auto alarm = mailbox_manager.acknowledgeAlarm(via);
+      const auto mb_id = input.text.substring(5).toInt();
+      const auto alarm = mailbox_manager.acknowledgeAlarm(via, mb_id);
       String reply;
       if (alarm != ALARM_NONE) {
         reply = F("Acknowledged \"");
@@ -340,7 +341,7 @@ void Telegram::update() {
         reply = F("Nothing to acknowledge");
       if (input.text.endsWith(F(" +status"))) {
         reply += "\n";
-        mailbox_manager.printText(reply);
+        mailbox_manager.printText(reply, mb_id);
       }
       sendMessage(input.chat_id, input.from_name, input.text, reply);
       continue;
@@ -356,7 +357,7 @@ void Telegram::update() {
     if (input.text == F("/help")) {
       String output = F(
         "Supported commands:\n"
-        "/ack    - acknowledge mailbox event\n"
+        "/ack [N] [+status] - acknowledge mailbox [N] event [and show status]\n"
         "/status - show mailbox status\n"
         "/help   - show help\n"
         );
