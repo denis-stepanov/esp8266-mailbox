@@ -57,6 +57,9 @@ namespace ds {
       bool isOK();                           // Return false in degraded conditions (battery low or mailbox absent)
       void printHTML(String& /* buf */) const; // Print mailbox status in HTML
       void printText(String& /* buf */) const; // Print mailbox status in text
+#ifdef DS_SUPPORT_TELEGRAM
+      void printTelegramKeyboard(String& /* buf */) const; // Print Telegram keyboard for a mailbox
+#endif // DS_SUPPORT_TELEGRAM
       void save() const;                     // Save mailbox information to disk
       static VirtualMailBox *load(const uint8_t /* id */); // Initialize mailbox with information on disk
       static bool forget(const uint8_t /* id */); // Remove mailbox information from disk

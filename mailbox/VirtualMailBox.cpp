@@ -196,7 +196,12 @@ void VirtualMailBox::printHTML(String& buf) const {
   buf += time_str;
   if (t && last_seen && (unsigned long)(t - last_seen) >= ABSENCE_TIME)
     buf += F("</span>");
-  buf += F("</td></tr>\n");
+  buf += F("</td><td><form action=\"/ack\"><input type=\"hidden\" name=\"id\" value=\"");
+  buf += id;
+  buf += F("\"/><input type=\"submit\" value=\"Ack\"");
+  if (alarm == ALARM_NONE)
+    buf += F(" disabled=\"true\"");
+  buf += F("/></form></td></tr>\n");
 }
 
 // Print mailbox status in text
@@ -238,6 +243,15 @@ void VirtualMailBox::printText(String& buf) const {
     buf += F("*");
   buf += "\n";
 }
+
+#ifdef DS_SUPPORT_TELEGRAM
+// Print Telegram keyboard for a mailbox
+void VirtualMailBox::printTelegramKeyboard(String& buf) const {
+  buf += F("\"/ack ");
+  buf += id;
+  buf += F("\"");
+}
+#endif // DS_SUPPORT_TELEGRAM
 
 // Return configuration file name (static version)
 String VirtualMailBox::getConfFileName(const uint8_t id) {

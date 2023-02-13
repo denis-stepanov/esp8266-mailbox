@@ -147,19 +147,27 @@ void MailBoxManager::updateAlarm() {
   }
 }
 
-// Acknowledge global alarm. Returns the alarm acknowledged
-mailbox_alarm MailBoxManager::acknowledgeAlarm(const String &via) {
-  const auto alarm_ack = alarm;
-  if (alarm != ALARM_NONE) {
-    System::led.Off();
+// Acknowledge alarm. Returns the alarm acknowledged
+mailbox_alarm MailBoxManager::acknowledgeAlarm(const String &via, const uint8_t mb_id) {
+  auto mailbox = getMailBox(mb_id);
+  const auto alarm_ack = mailbox ? mailbox->getAlarm() : alarm;
+  if (alarm_ack != ALARM_NONE) {
+    if (mailbox)
+      mailbox->resetAlarm();
+    else
+      for (auto mb : mailboxes)
+        mb->resetAlarm();
+    updateAlarm();
     String msg = F("Alarm \"");
-    msg += VirtualMailBox::getAlarmStr(alarm);
-    msg += F("\" acknowledged via ");
+    msg += VirtualMailBox::getAlarmStr(alarm_ack);
+    msg += F("\"");
+    if (mailbox) {
+      msg += F(" of mailbox ");
+      msg += mb_id;
+    }
+    msg += F(" acknowledged via ");
     msg += via;
     System::appLogWriteLn(msg, true);
-    alarm = ALARM_NONE;
-    for (auto mb : mailboxes)
-      mb->resetAlarm();
   }
   return alarm_ack;
 }
@@ -172,15 +180,15 @@ void MailBoxManager::printHTML(String& buf) {
   buf += VirtualMailBox::getAlarmIcon(alarm);
   buf += F("</span>\n<p>Global status:&nbsp;&nbsp;");
   buf += VirtualMailBox::getAlarmStr(alarm, true);
-  buf += F("&nbsp;&nbsp;<input type=\"submit\" value=\"Acknowledge\"");
+  buf += F("&nbsp;&nbsp;<input type=\"submit\" value=\"Acknowledge All\"");
   if (alarm == ALARM_NONE)
     buf += F(" disabled=\"true\"");
   buf += F("/></p>\n</form>\n"
     "<table border=\"1\" cellpadding=\"3\" cellspacing=\"0\" style=\"font-family: monospace; border-collapse: collapse;\">\n"
     "<tr><th title=\"ID\">&#x1f4ec;</th><th title=\"Label\">&#x1f3f7;</th><th title=\"Status\">&#x1f6a9;</th>"
-    "<th title=\"Battery\">&#x1f50b;</th><th title=\"Radio Reliability\">&#x1f4f6;</th><th title=\"Last Contact\">&#x1f557;</th></tr>\n");
+    "<th title=\"Battery\">&#x1f50b;</th><th title=\"Radio Reliability\">&#x1f4f6;</th><th title=\"Last Contact\">&#x1f557;</th><th>&#x2705;</th></tr>\n");
   if (mailboxes.empty())
-    buf += F("<tr><td colspan=\"6\" style=\"text-align: center\">- No mailboxes have reported so far -</tr>\n");
+    buf += F("<tr><td colspan=\"7\" style=\"text-align: center\">- No mailboxes have reported so far -</tr>\n");
   else
     for (auto mb : mailboxes)
       buf << *mb;
@@ -189,12 +197,13 @@ void MailBoxManager::printHTML(String& buf) {
 
 // Print mailboxes table in text
 //// This method should have been const, but LinkedList is not sufficiently well written for that
-void MailBoxManager::printText(String& buf) {
+void MailBoxManager::printText(String& buf, const uint8_t mb_id) {
   if (mailboxes.empty())
     buf += F("No mailboxes have reported so far");
   else
     for (auto mb : mailboxes)
-      mb->printText(buf);
+      if (!mb_id || *mb == mb_id)
+        mb->printText(buf);
 }
 
 // HTML printout helper
@@ -202,5 +211,27 @@ String& operator<<(String& html_buf, MailBoxManager& mbm) {
   mbm.printHTML(html_buf);
   return html_buf;
 }
+
+#ifdef DS_SUPPORT_TELEGRAM
+// Print Telegram keyboard for mailboxes
+void MailBoxManager::printTelegramKeyboard(String& buf) const {
+  const uint8_t NUM_MAILBOXES_IN_ROW = 3;     // Max number of mailboxes in a row
+  uint8_t n = 0;
+  for (auto mb : mailboxes) {
+    if (n % NUM_MAILBOXES_IN_ROW)
+      buf += F(",");                          // Column separator
+    else {
+      if (n)
+        buf += F(",");                        // Row separator
+      buf += F("[");
+    }
+    mb->printTelegramKeyboard(buf);
+    if (!(++n % NUM_MAILBOXES_IN_ROW))
+      buf += F("]");
+  }
+  if (n % NUM_MAILBOXES_IN_ROW)               // Incomplete row
+    buf += F("]");
+}
+#endif // DS_SUPPORT_TELEGRAM
 
 #endif // !DS_MAILBOX_REMOTE
