@@ -348,8 +348,9 @@ void Telegram::update() {
     }
 
     if (input.text == F("/status")) {
+      const auto mb_id = input.text.substring(5).toInt();
       String output;
-      mailbox_manager.printText(output);
+      mailbox_manager.printText(output, mb_id);
       sendMessage(input.chat_id, input.from_name, input.text, output);
       continue;
     }
@@ -358,8 +359,8 @@ void Telegram::update() {
       String output = F(
         "Supported commands:\n"
         "/ack [N] [+status] - acknowledge mailbox [N] event [and show status]\n"
-        "/status - show mailbox status\n"
-        "/help   - show help\n"
+        "/status [N] - show mailbox [N] status\n"
+        "/help - show help\n"
         );
       sendMessage(input.chat_id, input.from_name, input.text, output);
       continue;
