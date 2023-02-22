@@ -27,8 +27,8 @@ static const char *FILE_PREFIX PROGMEM = "/mailbox"; // Configuration file prefi
 static const char *FILE_EXT PROGMEM = ".cfg";        // Configuration file extension
 
 // Constructor
-VirtualMailBox::VirtualMailBox(const uint8_t _id, const String _label, const uint8_t _battery, const time_t _last_seen) :
-  MailBox(_id, _label, _battery), last_seen(_last_seen), msg_recv(0), alarm(ALARM_NONE),
+VirtualMailBox::VirtualMailBox(const uint8_t _id, const String _label, const uint8_t _battery, const time_t _last_seen, const time_t _last_boot) :
+  MailBox(_id, _label, _battery), last_seen(_last_seen), last_boot(_last_boot), msg_recv(0), alarm(ALARM_NONE),
   timer((char *)nullptr, (AWAKE_TIME + 5000 /* slack 5s */) / 1000.0, std::bind(&VirtualMailBox::timeout, this), false, false),
   g_opening_reported(false), low_battery_reported(false) {
 }
@@ -46,6 +46,43 @@ void VirtualMailBox::setLastSeen(const time_t t) {
   else
     if (System::getTimeSyncStatus() != TIME_SYNC_NONE)
       last_seen = System::getTime();
+}
+
+// Return the last boot time
+time_t VirtualMailBox::getLastBoot() const {
+  return last_boot;
+}
+
+// Set the last boot time. 0 means current time
+void VirtualMailBox::setLastBoot(const time_t t) {
+  if (t)
+    last_boot = t;
+  else
+    if (System::getTimeSyncStatus() != TIME_SYNC_NONE)
+      last_boot = System::getTime();
+}
+
+// Return uptime as string
+String VirtualMailBox::getUptimeStr() const {
+  String up_str;
+  if (last_boot && System::getTimeSyncStatus() != TIME_SYNC_NONE) {
+    const auto uptime = System::getTime() - last_boot;
+    if (uptime >= 24 * 60 * 60) {
+      up_str = String(uptime / (24 * 60 * 60));
+      up_str += F(" d");
+    } else if (uptime >= 60 * 60) {
+      up_str = String(uptime / (60 * 60));
+      up_str += F(" h");
+    } else if (uptime >= 60) {
+      up_str = String(uptime / 60);
+      up_str += F(" m");
+    } else {
+      up_str = String(uptime);
+      up_str += F(" s");
+    }
+  } else
+    up_str = F("unknown");
+  return up_str;
 }
 
 // Return radio link reliability (%). -1 == unknown
@@ -241,6 +278,10 @@ void VirtualMailBox::printText(String& buf) const {
   buf += time_str;
   if (t && last_seen && (unsigned long)(t - last_seen) >= ABSENCE_TIME)
     buf += F("*");
+  if (t && last_boot) {
+    buf += F(", \xe2\x8f\xbb ");       // UTF-8 'POWER SYMBOL'
+    buf += getUptimeStr();
+  }
   buf += "\n";
 }
 
@@ -276,6 +317,7 @@ void VirtualMailBox::save() const {
   file.println(label);
   file.println(last_seen);
   file.println(battery);
+  file.println(last_boot);
   file.close();
 }
 
@@ -288,8 +330,9 @@ VirtualMailBox *VirtualMailBox::load(const uint8_t id) {
   label.trim();
   time_t last_seen = file.parseInt();
   uint8_t battery = file.parseInt();
+  time_t last_boot = file.parseInt();
   file.close();
-  return new VirtualMailBox(id, label, battery, last_seen);
+  return new VirtualMailBox(id, label, battery, last_seen, last_boot);
 }
 
 // Remove mailbox information from disk
