@@ -233,6 +233,9 @@ void VirtualMailBox::printHTML(String& buf) const {
   buf += time_str;
   if (t && last_seen && (unsigned long)(t - last_seen) >= ABSENCE_TIME)
     buf += F("</span>");
+  buf += F("</td><td>");
+  if (t && last_boot)
+    buf += getUptimeStr();
   buf += F("</td><td><form action=\"/ack\"><input type=\"hidden\" name=\"id\" value=\"");
   buf += id;
   buf += F("\"/><input type=\"submit\" value=\"Ack\"");
