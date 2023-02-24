@@ -387,8 +387,8 @@ VirtualMailBox& VirtualMailBox::operator=(const MailBoxMessage& msg) {
       && (
          boot  /* Boot message arrived */
       || counter_desync   /* Counter desync is usually a sign of reboot */
-         /* TODO - make 10 a proper constant */
-      || (battery_new != BATTERY_LEVEL_UNKNOWN && battery_new - battery >= 10) /* Because of weghting, battery jump of more than 10% impossible without battery replacement */
+      /* Because of weghting, battery jump of more than 100% / weight coeff is impossible without battery replacement */
+      || (battery_new != BATTERY_LEVEL_UNKNOWN && battery_new - battery >= 100 / BATTERY_CHANGE_WEIGHT_COEFF)
          )
     ) {
     setLastBoot(System::time - remote_time / 1000);

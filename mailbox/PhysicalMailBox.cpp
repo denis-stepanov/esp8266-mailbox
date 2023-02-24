@@ -62,8 +62,8 @@ uint8_t PhysicalMailBox::updateBattery() {
     if (battery != BATTERY_LEVEL_UNKNOWN) {
 
       // Vcc ADC has unstable readings, ranging +-20% in normal operation
-      // Mitigate this with simple averaging by giving new value a weight of 10%
-      const int8_t diff = (battery_new - battery) / 10;
+      // Mitigate this with simple averaging by giving new value some predefined weight
+      const int8_t diff = (battery_new - battery) / BATTERY_CHANGE_WEIGHT_COEFF;
       if (battery + diff < 0)
         battery = 0;
       else
