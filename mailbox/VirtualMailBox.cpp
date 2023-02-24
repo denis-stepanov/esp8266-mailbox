@@ -351,6 +351,8 @@ VirtualMailBox& VirtualMailBox::operator=(const MailBoxMessage& msg) {
   String lmsg;
   auto msg_num_cur = msg_num;
   uint16_t msg_lost = 0;
+  auto counter_desync = false;
+  const auto remote_time = msg.getTime();
   const auto msg_num_new = msg.getMessageNumber();
   if (msg_num_cur != MESSAGE_NUMBER_UNKNOWN && !msg.getBoot()) {
     MailBoxMessage::getNextMessageNumber(msg_num_cur);
@@ -366,6 +368,7 @@ VirtualMailBox& VirtualMailBox::operator=(const MailBoxMessage& msg) {
     } else {
       System::appLogWriteLn(F("Message counter is out of sync; resetting"));
       msg_lost = 0;
+      counter_desync = true;
     }
   }
 
@@ -374,12 +377,24 @@ VirtualMailBox& VirtualMailBox::operator=(const MailBoxMessage& msg) {
   msg_recv++;
   setLastSeen();
   msg_num = msg_num_new;
-  boot = msg.getBoot();
   online = msg.getOnline();
   const auto battery_new = msg.getBattery();
+  door = msg.getDoor();
+  boot = msg.getBoot();
+
+  //// Boot detection can be unreliable, so try several ways
+  if (System::getTimeSyncStatus() != TIME_SYNC_NONE
+      && (
+         boot  /* Boot message arrived */
+      || counter_desync   /* Counter desync is usually a sign of reboot */
+         /* TODO - make 10 a proper constant */
+      || (battery_new != BATTERY_LEVEL_UNKNOWN && battery_new - battery >= 10) /* Because of weghting, battery jump of more than 10% impossible without battery replacement */
+         )
+    ) {
+    setLastBoot(System::time - remote_time / 1000);
+  }
   if (battery_new != BATTERY_LEVEL_UNKNOWN)
     battery = battery_new;
-  door = msg.getDoor();
   updateAlarm();
   save();
 
@@ -390,7 +405,6 @@ VirtualMailBox& VirtualMailBox::operator=(const MailBoxMessage& msg) {
   lmsg += getName();
 
   //// Regular "cumulative status" alarm string is not really good for momentary logging, so make a separate interpretation here
-  const auto remote_time = msg.getTime();
   switch (alarm) {
     case ALARM_NONE:       /* Never happens here */         break;
     case ALARM_BOOTED:        lmsg += online ? F(" rebooted") : F(" sleeping after reboot"); break;
