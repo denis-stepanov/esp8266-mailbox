@@ -285,7 +285,7 @@ void VirtualMailBox::printText(String& buf) const {
     buf += F(", \xe2\x8f\xbb ");       // UTF-8 'POWER SYMBOL'
     buf += getUptimeStr();
   }
-  buf += "\n";
+  buf += F("\n");
 }
 
 #ifdef DS_SUPPORT_TELEGRAM
