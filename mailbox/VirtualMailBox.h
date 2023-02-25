@@ -28,7 +28,8 @@ namespace ds {
   class VirtualMailBox : public MailBox {
 
     protected:
-      time_t last_seen;                      // Last time the mailbox reported
+      time_t last_seen;                      // Last time the mailbox reported (0 means unknown)
+      time_t last_boot;                      // Last time the mailbox booted (0 means unknown)
       uint32_t msg_recv;                     // Number of received messages
       mailbox_alarm alarm;                   // Alarm status
       TimerCountdownTick timer;              // Timer to check for absent second message
@@ -43,9 +44,13 @@ namespace ds {
       static const uint8_t RADIO_RELIABILITY_BAD = 89;     // (%)
       static const unsigned int ABSENCE_TIME = 3 * 24 * 60 * 60; // Interval after which mailbox is considered absent (s). Expected to be at least 1 day
 
-      VirtualMailBox(const uint8_t _id = 1, const String _label = (char *)nullptr, const uint8_t _battery = BATTERY_LEVEL_UNKNOWN, const time_t _last_seen = 0); // Constructor
+      VirtualMailBox(const uint8_t _id = 1, const String _label = (char *)nullptr, const uint8_t _battery = BATTERY_LEVEL_UNKNOWN,
+        const time_t _last_seen = 0, const time_t _last_boot = 0); // Constructor
       time_t getLastSeen() const;            // Return the last report time
       void setLastSeen(const time_t t = 0);  // Set the last report time. 0 means current time
+      time_t getLastBoot() const;            // Return the last boot time
+      void setLastBoot(const time_t t = 0);  // Set the last boot time. 0 means current time
+      String getUptimeStr() const;           // Return uptime as string
       int8_t getRadioReliability() const;    // Return radio link reliability (%). -1 == unknown
       mailbox_alarm getAlarm() const;        // Return mailbox alarm
       String getAlarmStr(const bool html = false) const; // Return mailbox alarm as string (possibly, HTMLized)

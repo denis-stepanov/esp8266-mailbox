@@ -30,6 +30,7 @@ namespace ds {
   const uint8_t MESSAGE_NUMBER_UNKNOWN = 0;  // Unknown message number
   const uint8_t MAILBOX_ID_MIN = 1;          // Minimal mailbox ID (for use in probing)
   const uint8_t MAILBOX_ID_MAX = 15;         // Maximum mailbox ID (for use in probing)
+  const uint8_t BATTERY_CHANGE_WEIGHT_COEFF = 10; // Weight coefficient for battery level change (> 0)
 
   // Various battery levels (%)
   enum {

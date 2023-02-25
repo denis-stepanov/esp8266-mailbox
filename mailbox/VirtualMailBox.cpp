@@ -27,8 +27,8 @@ static const char *FILE_PREFIX PROGMEM = "/mailbox"; // Configuration file prefi
 static const char *FILE_EXT PROGMEM = ".cfg";        // Configuration file extension
 
 // Constructor
-VirtualMailBox::VirtualMailBox(const uint8_t _id, const String _label, const uint8_t _battery, const time_t _last_seen) :
-  MailBox(_id, _label, _battery), last_seen(_last_seen), msg_recv(0), alarm(ALARM_NONE),
+VirtualMailBox::VirtualMailBox(const uint8_t _id, const String _label, const uint8_t _battery, const time_t _last_seen, const time_t _last_boot) :
+  MailBox(_id, _label, _battery), last_seen(_last_seen), last_boot(_last_boot), msg_recv(0), alarm(ALARM_NONE),
   timer((char *)nullptr, (AWAKE_TIME + 5000 /* slack 5s */) / 1000.0, std::bind(&VirtualMailBox::timeout, this), false, false),
   g_opening_reported(false), low_battery_reported(false) {
 }
@@ -46,6 +46,43 @@ void VirtualMailBox::setLastSeen(const time_t t) {
   else
     if (System::getTimeSyncStatus() != TIME_SYNC_NONE)
       last_seen = System::getTime();
+}
+
+// Return the last boot time
+time_t VirtualMailBox::getLastBoot() const {
+  return last_boot;
+}
+
+// Set the last boot time. 0 means current time
+void VirtualMailBox::setLastBoot(const time_t t) {
+  if (t)
+    last_boot = t;
+  else
+    if (System::getTimeSyncStatus() != TIME_SYNC_NONE)
+      last_boot = System::getTime();
+}
+
+// Return uptime as string
+String VirtualMailBox::getUptimeStr() const {
+  String up_str;
+  if (last_boot && System::getTimeSyncStatus() != TIME_SYNC_NONE) {
+    const auto uptime = System::getTime() - last_boot;
+    if (uptime >= 24 * 60 * 60) {
+      up_str = String(uptime / (24 * 60 * 60));
+      up_str += F(" d");
+    } else if (uptime >= 60 * 60) {
+      up_str = String(uptime / (60 * 60));
+      up_str += F(" h");
+    } else if (uptime >= 60) {
+      up_str = String(uptime / 60);
+      up_str += F(" m");
+    } else {
+      up_str = String(uptime);
+      up_str += F(" s");
+    }
+  } else
+    up_str = F("unknown");
+  return up_str;
 }
 
 // Return radio link reliability (%). -1 == unknown
@@ -196,6 +233,9 @@ void VirtualMailBox::printHTML(String& buf) const {
   buf += time_str;
   if (t && last_seen && (unsigned long)(t - last_seen) >= ABSENCE_TIME)
     buf += F("</span>");
+  buf += F("</td><td>");
+  if (t && last_boot)
+    buf += getUptimeStr();
   buf += F("</td><td><form action=\"/ack\"><input type=\"hidden\" name=\"id\" value=\"");
   buf += id;
   buf += F("\"/><input type=\"submit\" value=\"Ack\"");
@@ -241,7 +281,11 @@ void VirtualMailBox::printText(String& buf) const {
   buf += time_str;
   if (t && last_seen && (unsigned long)(t - last_seen) >= ABSENCE_TIME)
     buf += F("*");
-  buf += "\n";
+  if (t && last_boot) {
+    buf += F(", \xf0\x9f\x86\x99 ");       // UTF-8 'SQUARED UP WITH EXCLAMATION MARK'
+    buf += getUptimeStr();  // Would be better to align to mailbox reporting style, but for this we need the fix https://github.com/denis-stepanov/esp-ds-system/issues/57
+  }
+  buf += F("\n");
 }
 
 #ifdef DS_SUPPORT_TELEGRAM
@@ -276,6 +320,7 @@ void VirtualMailBox::save() const {
   file.println(label);
   file.println(last_seen);
   file.println(battery);
+  file.println(last_boot);
   file.close();
 }
 
@@ -288,8 +333,9 @@ VirtualMailBox *VirtualMailBox::load(const uint8_t id) {
   label.trim();
   time_t last_seen = file.parseInt();
   uint8_t battery = file.parseInt();
+  time_t last_boot = file.parseInt();
   file.close();
-  return new VirtualMailBox(id, label, battery, last_seen);
+  return new VirtualMailBox(id, label, battery, last_seen, last_boot);
 }
 
 // Remove mailbox information from disk
@@ -305,6 +351,8 @@ VirtualMailBox& VirtualMailBox::operator=(const MailBoxMessage& msg) {
   String lmsg;
   auto msg_num_cur = msg_num;
   uint16_t msg_lost = 0;
+  auto counter_desync = false;
+  const auto remote_time = msg.getTime();
   const auto msg_num_new = msg.getMessageNumber();
   if (msg_num_cur != MESSAGE_NUMBER_UNKNOWN && !msg.getBoot()) {
     MailBoxMessage::getNextMessageNumber(msg_num_cur);
@@ -320,6 +368,7 @@ VirtualMailBox& VirtualMailBox::operator=(const MailBoxMessage& msg) {
     } else {
       System::appLogWriteLn(F("Message counter is out of sync; resetting"));
       msg_lost = 0;
+      counter_desync = true;
     }
   }
 
@@ -328,12 +377,24 @@ VirtualMailBox& VirtualMailBox::operator=(const MailBoxMessage& msg) {
   msg_recv++;
   setLastSeen();
   msg_num = msg_num_new;
-  boot = msg.getBoot();
   online = msg.getOnline();
   const auto battery_new = msg.getBattery();
+  door = msg.getDoor();
+  boot = msg.getBoot();
+
+  //// Boot detection can be unreliable, so try several ways
+  if (System::getTimeSyncStatus() != TIME_SYNC_NONE
+      && (
+         boot  /* Boot message arrived */
+      || counter_desync   /* Counter desync is usually a sign of reboot */
+      /* Because of weghting, battery jump of more than 100% / weight coeff is impossible without battery replacement */
+      || (battery_new != BATTERY_LEVEL_UNKNOWN && battery_new - battery >= 100 / BATTERY_CHANGE_WEIGHT_COEFF)
+         )
+    ) {
+    setLastBoot(System::time - remote_time / 1000);
+  }
   if (battery_new != BATTERY_LEVEL_UNKNOWN)
     battery = battery_new;
-  door = msg.getDoor();
   updateAlarm();
   save();
 
@@ -344,7 +405,6 @@ VirtualMailBox& VirtualMailBox::operator=(const MailBoxMessage& msg) {
   lmsg += getName();
 
   //// Regular "cumulative status" alarm string is not really good for momentary logging, so make a separate interpretation here
-  const auto remote_time = msg.getTime();
   switch (alarm) {
     case ALARM_NONE:       /* Never happens here */         break;
     case ALARM_BOOTED:        lmsg += online ? F(" rebooted") : F(" sleeping after reboot"); break;
