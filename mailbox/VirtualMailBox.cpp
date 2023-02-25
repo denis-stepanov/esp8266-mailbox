@@ -282,8 +282,8 @@ void VirtualMailBox::printText(String& buf) const {
   if (t && last_seen && (unsigned long)(t - last_seen) >= ABSENCE_TIME)
     buf += F("*");
   if (t && last_boot) {
-    buf += F(", \xe2\x8f\xbb ");       // UTF-8 'POWER SYMBOL'
-    buf += getUptimeStr();
+    buf += F(", \xf0\x9f\x86\x99 ");       // UTF-8 'SQUARED UP WITH EXCLAMATION MARK'
+    buf += getUptimeStr();  // Would be better to align to mailbox reporting style, but for this we need the fix https://github.com/denis-stepanov/esp-ds-system/issues/57
   }
   buf += F("\n");
 }
