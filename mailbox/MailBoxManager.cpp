@@ -186,7 +186,7 @@ void MailBoxManager::printHTML(String& buf) {
   buf += F("/></p>\n</form>\n"
     "<table border=\"1\" cellpadding=\"3\" cellspacing=\"0\" style=\"font-family: monospace; border-collapse: collapse;\">\n"
     "<tr><th title=\"ID\">&#x1f4ec;</th><th title=\"Label\">&#x1f3f7;</th><th title=\"Status\">&#x1f6a9;</th>"
-    "<th title=\"Battery\">&#x1f50b;</th><th title=\"Radio Reliability\">&#x1f4f6;</th><th title=\"Last Contact\">&#x1f557;</th><th>&#x2705;</th><th>&#x23fb;</th></tr>\n");
+    "<th title=\"Battery\">&#x1f50b;</th><th title=\"Radio Reliability\">&#x1f4f6;</th><th title=\"Last Contact\">&#x1f557;</th><th>&#x23fb;</th><th>&#x2705;</th></tr>\n");
   if (mailboxes.empty())
     buf += F("<tr><td colspan=\"8\" style=\"text-align: center\">- No mailboxes have reported so far -</tr>\n");
   else
