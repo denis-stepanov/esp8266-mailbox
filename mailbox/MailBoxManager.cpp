@@ -173,8 +173,7 @@ mailbox_alarm MailBoxManager::acknowledgeAlarm(const String &via, const uint8_t 
 }
 
 // Print mailboxes table in HTML
-//// This method should have been const, but LinkedList is not sufficiently well written for that
-void MailBoxManager::printHTML(String& buf) {
+void MailBoxManager::printHTML(String& buf) const {
   buf += F("<form action=\"/ack\">\n"
            "<span style=\"font-size: 3cm;\">");
   buf += VirtualMailBox::getAlarmIcon(alarm);
@@ -196,8 +195,7 @@ void MailBoxManager::printHTML(String& buf) {
 }
 
 // Print mailboxes table in text
-//// This method should have been const, but LinkedList is not sufficiently well written for that
-void MailBoxManager::printText(String& buf, const uint8_t mb_id) {
+void MailBoxManager::printText(String& buf, const uint8_t mb_id) const {
   if (mailboxes.empty())
     buf += F("No mailboxes have reported so far");
   else

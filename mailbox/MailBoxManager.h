@@ -30,8 +30,8 @@ namespace ds {
       bool deleteMailBox(const uint8_t /* mb_id */);  // Delete mailbox with a given ID
       void updateAlarm();                             // Update global alarm and its display with the latest status from mailboxes
       mailbox_alarm acknowledgeAlarm(const String& /* via */, const uint8_t mb_id = 0); // Acknowledge alarm. Returns the alarm acknowledged
-      void printHTML(String& /* buf */);              // Print mailboxes table in HTML
-      void printText(String& /* buf */, const uint8_t mb_id = 0); // Print mailboxes table in text
+      void printHTML(String& /* buf */) const;        // Print mailboxes table in HTML
+      void printText(String& /* buf */, const uint8_t mb_id = 0) const; // Print mailboxes table in text
 #ifdef DS_SUPPORT_TELEGRAM
       void printTelegramKeyboard(String& /* buf */) const; // Print Telegram keyboard for mailboxes
 #endif // DS_SUPPORT_TELEGRAM
