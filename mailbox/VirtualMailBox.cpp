@@ -442,7 +442,7 @@ VirtualMailBox& VirtualMailBox::operator=(const MailBoxMessage& msg) {
   if (g_opening_reported)
     g_opening_reported = false;
   else
-    if (alarm >= ALARM_DOOR_FLIPPED) {
+    if (google_assistant.isActive() && alarm >= ALARM_DOOR_FLIPPED) {
       if (alarm == ALARM_DOOR_FLIPPED && !(remote_time / 1000)) {
 
         // Mailbox bounced; skip reporting
