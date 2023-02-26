@@ -91,7 +91,7 @@ static void serveMailBox() {
     if (id) {
       const auto mailbox = mailbox_manager[id];
       if (mailbox) {
-        pushHeader((String)"Mailbox " + id);
+        pushHeader((String)"Mailbox " + mailbox->getName());
         String &page = System::web_page;
         page += F("<form action=\"/save\">\n"
                   "<input type=\"hidden\" name=\"id\" value=\"");
