@@ -55,10 +55,10 @@ static void pushHeader(const String& title, bool redirect = false) {
   // Navigation
   page += F(
     "<table cellpadding=\"0\" cellspacing=\"0\" width=\"100%\"><tr><td>"
-    "[ <a href=\"/\">home</a> ]&nbsp;&nbsp;&nbsp;"
-    "[ <a href=\"/conf\">conf</a> ]&nbsp;&nbsp;&nbsp;"
-    "[ <a href=\"/log\">log</a> ]&nbsp;&nbsp;&nbsp;"
-    "[ <a href=\"/about\">about</a> ]&nbsp;&nbsp;&nbsp;"
+    "[&nbsp;<a href=\"/\">home</a>&nbsp;] "
+    "[&nbsp;<a href=\"/conf\">conf</a>&nbsp;] "
+    "[&nbsp;<a href=\"/log\">log</a>&nbsp;] "
+    "[&nbsp;<a href=\"/about\">about</a>&nbsp;]"
     "</td><td align=\"right\">"
   );
   if (System::getTimeSyncStatus() != TIME_SYNC_NONE)
