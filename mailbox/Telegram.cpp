@@ -124,15 +124,15 @@ bool Telegram::isActive() const {
 }
 
 // Send message with logging
-bool Telegram::sendMessage(const String& chat_id, const String& to, const String& cmd, const String& msg) {
+bool Telegram::sendMessage(const String& _chat_id, const String& to, const String& cmd, const String& msg) {
   if (System::networkIsConnected()) {
-    if (token.length() && chat_id.length()) {
+    if (token.length() && _chat_id.length()) {
       System::log->printf(TIMED("Serving Telegram command \""));
       System::log->print(cmd);
       System::log->print(F("\" to "));
       System::log->print(to);
-      System::log->println(chat_id[0] == '-' ? F(" in public") : F(" in private"));
-      return bot.sendMessage(chat_id, msg, F("Markdown"));
+      System::log->println(_chat_id[0] == '-' ? F(" in public") : F(" in private"));
+      return bot.sendMessage(_chat_id, msg, F("Markdown"));
     } else {
       System::log->printf(TIMED("Telegram message not sent: invalid credentials\n"));
       return false;
