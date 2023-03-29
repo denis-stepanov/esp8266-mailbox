@@ -329,7 +329,11 @@ void Telegram::update() {
   update_in_progress = true;
   const auto n_msg = bot.getUpdates(bot.last_message_received + 1);
   update_in_progress = false;
+
   for (int i = 0; i < n_msg; i++) {
+
+    yield();        // Relieve the system between lenghty operations
+
     const telegramMessage& input = bot.messages[i];
 
     if (input.text.startsWith("/ack")) {
