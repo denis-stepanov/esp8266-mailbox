@@ -35,9 +35,10 @@ const String& Telegram::getToken() const {
 
 // Set bot token
 void Telegram::setToken(const String& new_token) {
-  token = new_token;
-  token.trim();
-  bot.updateToken(token);
+  if (new_token != token) {
+    token = new_token;
+    bot.updateToken(token);
+  }
 }
 
 // Return chat ID
@@ -48,7 +49,6 @@ const String& Telegram::getChatID() const {
 // Set chat ID
 void Telegram::setChatID(const String& new_chat_id) {
   chat_id = new_chat_id;
-  chat_id.trim();
 }
 
 // Begin operations
@@ -64,8 +64,12 @@ bool Telegram::load() {
   auto file = System::fs.open(TG_CONF_FILE_NAME, "r");
   if (!file)
     return false;
-  setToken(file.readStringUntil('\n'));
-  setChatID(file.readStringUntil('\n'));
+  auto tok = file.readStringUntil('\n');
+  tok.trim();                                // Required to strip '\r'
+  setToken(tok);
+  auto cid = file.readStringUntil('\n');
+  cid.trim();
+  setChatID(cid);
   const auto is_active = file.parseInt();
   file.close();
   if (is_active)
@@ -77,8 +81,8 @@ bool Telegram::load() {
 
 // Save configuration to disk
 bool Telegram::save(const String& new_token, const String& new_chat_id, bool new_active) {
-  token = new_token;
-  chat_id = new_chat_id;
+  setToken(new_token);
+  setChatID(new_chat_id);
   if (new_active)
     activate();
   else
@@ -143,6 +147,7 @@ bool Telegram::sendMessage(const String& chat_id, const String& to, const String
 bool Telegram::sendTest(const String& new_token, const String& new_chat_id) {
 
   // Do not check "active" flag here, as this method is called intentionally for testing
+  // Equally, do not record token and chat ID
 
   if (System::networkIsConnected()) {
 
@@ -324,7 +329,7 @@ void Telegram::update() {
   update_in_progress = true;
   const auto n_msg = bot.getUpdates(bot.last_message_received + 1);
   update_in_progress = false;
-  for(int i = 0; i < n_msg; i++) {
+  for (int i = 0; i < n_msg; i++) {
     const telegramMessage& input = bot.messages[i];
 
     if (input.text.startsWith("/ack")) {
