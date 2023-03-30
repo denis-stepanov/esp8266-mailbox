@@ -197,7 +197,7 @@ void MailBoxManager::printHTML(String& buf) const {
 // Print mailboxes table in text
 void MailBoxManager::printText(String& buf, const uint8_t mb_id) const {
   if (mailboxes.empty())
-    buf += F("No mailboxes have reported so far");
+    buf += F("No mailboxes have reported so far\n");
   else
     for (auto mb : mailboxes)
       if (!mb_id || *mb == mb_id)
