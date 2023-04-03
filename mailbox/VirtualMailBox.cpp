@@ -385,7 +385,8 @@ VirtualMailBox& VirtualMailBox::operator=(const MailBoxMessage& msg) {
   //// Boot detection can be unreliable, so try several ways
   if (System::getTimeSyncStatus() != TIME_SYNC_NONE
       && (
-         boot  /* Boot message arrived */
+         !last_boot /* Have no previous record of uptime */
+      || boot  /* Boot message arrived */
       || counter_desync   /* Counter desync is usually a sign of reboot */
       /* Because of weghting, battery jump of more than 100% / weight coeff is impossible without battery replacement */
       || (battery_new != BATTERY_LEVEL_UNKNOWN && battery_new - battery >= 100 / BATTERY_CHANGE_WEIGHT_COEFF)
