@@ -246,7 +246,7 @@ void VirtualMailBox::printHTML(String& buf) const {
 
 // Print mailbox status in text
 void VirtualMailBox::printText(String& buf) const {
-  buf += F("Mailbox ");
+  buf += F("\xe2\x80\xa2 Mailbox ");   // UTF-8 'BULLET'
   buf += getName();
   buf += F(": ");
   buf += getAlarmIcon();

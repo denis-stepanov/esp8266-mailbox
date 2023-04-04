@@ -202,7 +202,7 @@ void MailBoxManager::printText(String& buf, const uint8_t mb_id) const {
     for (auto mb : mailboxes)
       if (!mb_id || *mb == mb_id)
         mb->printText(buf);
-  buf += F("Receiver: \xf0\x9f\x86\x99 ");       // UTF-8 'SQUARED UP WITH EXCLAMATION MARK'
+  buf += F("\xe2\x80\xa2 Receiver: \xf0\x9f\x86\x99 "); // UTF-8 'BULLET', UTF-8 'SQUARED UP WITH EXCLAMATION MARK'
   buf += System::getUptimeStr();
   buf += F("\n");
 }
