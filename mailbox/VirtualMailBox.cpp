@@ -35,7 +35,14 @@ VirtualMailBox::VirtualMailBox(const uint8_t _id, const String _label, const uin
   timer.disarm();          // Default is armed
   timer.repeatOnce();      // Default is recurrent
   System::timers.push_front(&timer); // Register the timer
-// FIXME: timer removal in the case of mailbox deletion
+}
+
+// Destructor
+VirtualMailBox::~VirtualMailBox() {
+
+  // Unregister the timer. Should be reviewed after fix https://github.com/denis-stepanov/esp-ds-system/issues/62
+  const auto tref = &timer;
+  System::timers.remove_if([tref](TimerAbsolute *t) {return t == tref;});
 }
 
 // Return the last report time

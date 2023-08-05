@@ -45,6 +45,7 @@ namespace ds {
 
       VirtualMailBox(const uint8_t _id = 1, const String _label = (char *)nullptr, const uint8_t _battery = BATTERY_LEVEL_UNKNOWN,
         const time_t _last_seen = 0, const time_t _last_boot = 0); // Constructor
+      ~VirtualMailBox();                     // Destructor
       time_t getLastSeen() const;            // Return the last report time
       void setLastSeen(const time_t t = 0);  // Set the last report time. 0 means current time
       time_t getLastBoot() const;            // Return the last boot time

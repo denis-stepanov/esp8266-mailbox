@@ -30,6 +30,7 @@ namespace ds {
 
     public:
       Telegram();                                     // Constructor
+      ~Telegram();                                    // Destructor
       const String& getToken() const;                 // Return bot token
       void setToken(const String& /* new_token */);   // Set bot token
       const String& getChatID() const;                // Return chat ID
