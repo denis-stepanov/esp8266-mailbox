@@ -17,7 +17,10 @@ using namespace ds;
 extern MailBoxManager mailbox_manager;     // Mailbox manager instance
 
 // Telegram poll interval
-static const unsigned int POLL_INTERVAL = 10;  // s
+//// This must be higher than the default timeout in SSL client (which is hardcoded in the Core to 15 s), or else Telegram requests might pile up
+//// There is upstream fix coming up to make 15 s configurable: https://github.com/esp8266/Arduino/issues/8889
+//// Successful connection takes about 2 s, so timeout of 5 s would be more reasonable
+static const unsigned int POLL_INTERVAL = 20;  // s
 
 // Settings file
 static const char *TG_CONF_FILE_NAME PROGMEM = "/telegram.cfg";
