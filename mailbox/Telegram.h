@@ -23,7 +23,6 @@ namespace ds {
       bool active;                                    // True if service is active
       bool boot_reported;                             // True if boot has been already reported
       bool bounce_reported;                           // True if door bounce has been already reported
-      bool update_in_progress;                        // True is update is in progress
 
     protected:
       bool sendMessage(const String& /* _chat_id */, const String& /* to */, const String& /* cmd */, const String& /* msg */); // Send message with logging

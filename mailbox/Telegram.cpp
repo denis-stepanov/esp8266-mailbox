@@ -27,7 +27,7 @@ static const char *TG_CONF_FILE_NAME PROGMEM = "/telegram.cfg";
 
 // Constructor
 Telegram::Telegram(): bot(token, client), timer("poll TG", POLL_INTERVAL),
-    active(false), boot_reported(false), bounce_reported(false), update_in_progress(false) {
+    active(false), boot_reported(false), bounce_reported(false) {
   client.setInsecure();    // See https://github.com/witnessmenow/Universal-Arduino-Telegram-Bot/issues/118
   timer.disarm();          // Default is armed
   System::timers.push_front(&timer);  // Register the timer
@@ -128,7 +128,6 @@ void Telegram::deactivate() {
     active = false;
     boot_reported = false;
     bounce_reported = false;
-    update_in_progress = false;
   }
 }
 
@@ -337,12 +336,10 @@ bool Telegram::sendEvent(const VirtualMailBox& mb, uint16_t remote_time) {
 
 // Process incoming commands
 void Telegram::update() {
-  if (!active || !System::networkIsConnected() || update_in_progress)
+  if (!active || !System::networkIsConnected())
     return;
 
-  update_in_progress = true;
   const auto n_msg = bot.getUpdates(bot.last_message_received + 1);
-  update_in_progress = false;
 
   for (int i = 0; i < n_msg; i++) {
 
