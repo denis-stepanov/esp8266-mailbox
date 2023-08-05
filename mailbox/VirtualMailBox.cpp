@@ -29,10 +29,14 @@ static const char *FILE_EXT PROGMEM = ".cfg";        // Configuration file exten
 // Constructor
 VirtualMailBox::VirtualMailBox(const uint8_t _id, const String _label, const uint8_t _battery, const time_t _last_seen, const time_t _last_boot) :
   MailBox(_id, _label, _battery), last_seen(_last_seen), last_boot(_last_boot), msg_recv(0), alarm(ALARM_NONE),
-  timer((char *)nullptr, (AWAKE_TIME + 5000 /* slack 5s */) / 1000.0, std::bind(&VirtualMailBox::timeout, this), false, false),
+  timer(String("signal absent msg for mb_id=") + _id, (AWAKE_TIME + 5000 /* slack 5s */) / 1000.0),
   g_opening_reported(false), low_battery_reported(false) {
-}
 
+  timer.disarm();          // Default is armed
+  timer.repeatOnce();      // Default is recurrent
+  System::timers.push_front(&timer); // Register the timer
+// FIXME: timer removal in the case of mailbox deletion
+}
 
 // Return the last report time
 time_t VirtualMailBox::getLastSeen() const {

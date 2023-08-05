@@ -26,9 +26,11 @@ static const unsigned int POLL_INTERVAL = 20;  // s
 static const char *TG_CONF_FILE_NAME PROGMEM = "/telegram.cfg";
 
 // Constructor
-Telegram::Telegram(): bot(token, client), timer((char *)nullptr, POLL_INTERVAL, std::bind(&Telegram::update, this), false),
+Telegram::Telegram(): bot(token, client), timer("poll TG", POLL_INTERVAL),
     active(false), boot_reported(false), bounce_reported(false), update_in_progress(false) {
   client.setInsecure();    // See https://github.com/witnessmenow/Universal-Arduino-Telegram-Bot/issues/118
+  timer.disarm();          // Default is armed
+  System::timers.push_front(&timer);  // Register the timer
 }
 
 // Return bot token

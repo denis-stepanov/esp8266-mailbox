@@ -38,7 +38,7 @@
 #define DS_CAP_MDNS         // Enable mDNS
 #define DS_CAP_WEBSERVER    // Enable web server
 #define DS_CAP_BUTTON       // Enable button
-#define DS_CAP_TIMERS_COUNT_TICK // Enable countdown timers via ticker
+#define DS_CAP_TIMERS_COUNT_ABS // Enable countdown timers via absolute time
 
 #define DS_LED_VS_SERIAL_CHECKED_OK   // LED on pin 1, log line on pin 2
 

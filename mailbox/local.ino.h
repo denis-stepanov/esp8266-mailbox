@@ -100,12 +100,33 @@ static void handleTimeSync() {
   }
 }
 
+// Timer handler
+static void handleAbsTimer(const TimerAbsolute* timer) {
+  const auto& action = timer->getAction();
+
+  if (action.startsWith("signal absent msg for mb_id=")) {
+
+    // This would be far easier if timer could store a back reference to mailbox; see https://github.com/denis-stepanov/esp-ds-system/issues/61
+    const auto mb = mailbox_manager[action.substring(28).toInt()];
+    if (mb)
+      mb->timeout();
+  }
+
+#ifdef DS_SUPPORT_TELEGRAM
+  if (action == "poll TG") {
+    telegram.update();
+  }
+#endif // DS_SUPPORT_TELEGRAM
+
+}
+
 //// Install hooks
 #ifdef DS_DEVBOARD
 void (*System::onButtonInit)() = handleButtonInit;
 #endif // DS_DEVBOARD
 void (*System::onButtonPress)(AceButton*, uint8_t, uint8_t) = handleButtonEvent;
 void (*System::onTimeSync)() = handleTimeSync;
+void (*System::timerHandler)(const TimerAbsolute*) = handleAbsTimer;
   
 void setup() {
 

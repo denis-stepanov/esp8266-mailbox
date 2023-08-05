@@ -32,13 +32,12 @@ namespace ds {
       time_t last_boot;                      // Last time the mailbox booted (0 means unknown)
       uint32_t msg_recv;                     // Number of received messages
       mailbox_alarm alarm;                   // Alarm status
-      TimerCountdownTick timer;              // Timer to check for absent second message
+      TimerCountdownAbs timer;               // Timer to check for absent second message
       bool g_opening_reported;               // True if opening has already been reported to Google
       bool low_battery_reported;             // True if low battery status has been recently reported
 
       static String getConfFileName(const uint8_t /* id */); // Return configuration file name (static version)
       String getConfFileName() const;        // Return configuration file name
-      void timeout();                        // Message timeout handler
 
     public:
       static const uint8_t RADIO_RELIABILITY_BAD = 89;     // (%)
@@ -60,6 +59,7 @@ namespace ds {
       void updateAlarm();                    // Update mailbox alarm
       void resetAlarm();                     // Reset mailbox alarm
       bool isOK();                           // Return false in degraded conditions (battery low or mailbox absent)
+      void timeout();                        // Message timeout handler
       void printHTML(String& /* buf */) const; // Print mailbox status in HTML
       void printText(String& /* buf */) const; // Print mailbox status in text
 #ifdef DS_SUPPORT_TELEGRAM

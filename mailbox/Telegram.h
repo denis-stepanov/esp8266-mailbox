@@ -19,7 +19,7 @@ namespace ds {
       String chat_id;                                 // Telegram chat ID
       WiFiClientSecure client;                        // Encrypted connection
       UniversalTelegramBot bot;                       // Bot instance
-      TimerCountdownTick timer;                       // Timer to service Telegram incoming traffic
+      TimerCountdownAbs timer;                        // Timer to service Telegram incoming traffic
       bool active;                                    // True if service is active
       bool boot_reported;                             // True if boot has been already reported
       bool bounce_reported;                           // True if door bounce has been already reported
@@ -27,7 +27,6 @@ namespace ds {
 
     protected:
       bool sendMessage(const String& /* _chat_id */, const String& /* to */, const String& /* cmd */, const String& /* msg */); // Send message with logging
-      void update();                                  // Process incoming commands
 
     public:
       Telegram();                                     // Constructor
@@ -41,6 +40,7 @@ namespace ds {
       void activate();                                // Activate service
       void deactivate();                              // Deactivate service
       bool isActive() const;                          // Return true if service is active
+      void update();                                  // Process incoming commands
       bool sendTest(const String& /* new_token */, const String& /* new_chat_id */); // Send test message
       bool sendBoot();                                // Send boot notification
       bool sendBatteryLow(const VirtualMailBox& /* mb */); // Send low battery notification
