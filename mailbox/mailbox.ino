@@ -7,9 +7,9 @@
  * * * ESP8266 Core for Arduino 3.1.2 (https://github.com/esp8266/Arduino)
  * * * ESP-DS-System 1.1.3 (https://github.com/denis-stepanov/esp-ds-system)
  * * * WiFiManager 0.16.0 (https://github.com/tzapu/WiFiManager)
- * * * JLED 4.12.1 (https://github.com/jandelgado/jled)
- * * * AceButton 1.9.2 (https://github.com/bxparks/AceButton)
- * * * ArduinoJson 6.21.1 (https://github.com/bblanchon/ArduinoJson)
+ * * * JLed 4.12.2 (https://github.com/jandelgado/jled)
+ * * * AceButton 1.10.1 (https://github.com/bxparks/AceButton)
+ * * * ArduinoJson 6.21.3 (https://github.com/bblanchon/ArduinoJson)
  * * * UniversalTelegramBot 1.3.0 (https://github.com/witnessmenow/Universal-Arduino-Telegram-Bot)
  * * * Uptime-Library 1.0.0 (https://github.com/YiannisBourkelis/Uptime-Library)
  * * Hardware:
