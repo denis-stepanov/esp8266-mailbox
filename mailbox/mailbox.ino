@@ -19,6 +19,7 @@
  * * * * * Arduino IDE settings:
  * * * * * * Board: Generic ESP8266 Module
  * * * * * * Upload Speed: 115200
+ * * * * * * CPU Frequency: 160 MHz
  * * * * * * Flash Size: 1MB (FS:256kB)
  * * * * * * Flash Mode: DOUT (compatible) (depends on the module - yours could be different)
  * * * * * * Builtin LED: 1
